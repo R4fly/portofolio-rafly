@@ -9,7 +9,6 @@ import {
   STATIC_COMMANDS,
   NO_RESULTS_TEXT,
   SEARCH_PLACEHOLDER,
-  type CommandItem,
 } from '@/lib/constants/commands'
 import { FolderKanban, Music, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -149,7 +148,7 @@ export function CommandMenu() {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/80 animate-in fade-in-0"
+        className="fixed inset-0 z-50 animate-in fade-in-0 bg-black/80"
         onClick={close}
       />
 
