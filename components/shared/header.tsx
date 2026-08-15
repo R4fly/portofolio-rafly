@@ -19,7 +19,7 @@ import { useCommandMenuStore } from '@/lib/stores/command-store'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { LogoutButton } from './logout-button'
 import { ThemeToggle } from './theme-toggle'
-import { Menu, Command, LogIn, LayoutDashboard } from 'lucide-react'
+import { Menu, Command, LogIn, LayoutDashboard, ShieldCheck } from 'lucide-react'
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -33,7 +33,7 @@ export function Header() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const openCommandMenu = useCommandMenuStore((state) => state.open)
-  const { user, profile, isLoading, isAuthenticated } = useAuth()
+  const { user, profile, isLoading, isAuthenticated, isAdmin } = useAuth()
 
   // Generate initials untuk avatar
   const initials = profile?.full_name
@@ -128,6 +128,15 @@ export function Header() {
                     Dashboard
                   </Link>
                 </DropdownMenuItem>
+                {/* Admin Panel link — hanya untuk admin */}
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/admin" className="cursor-pointer">
+                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      Admin Panel
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer p-0">
                   <LogoutButton
@@ -215,6 +224,22 @@ export function Header() {
                         </p>
                       </div>
                     </Link>
+                    {/* Admin Panel link di mobile — hanya untuk admin */}
+                    {isAdmin && (
+                      <Link
+                        href="/dashboard/admin"
+                        className="flex items-center gap-3 rounded-lg border border-border/40 p-3 transition-colors hover:border-secondary/50"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <ShieldCheck className="h-5 w-5 text-secondary" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-foreground">Admin Panel</p>
+                          <p className="text-xs text-muted-foreground">
+                            Kelola konten website
+                          </p>
+                        </div>
+                      </Link>
+                    )}
                     <div className="mt-2 border-t border-border/40 pt-4">
                       <LogoutButton
                         variant="outline"
