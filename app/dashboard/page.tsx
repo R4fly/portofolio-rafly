@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { LayoutDashboard, LogOut, MessageCircle, Calendar } from 'lucide-react'
+import { LayoutDashboard, MessageCircle, Calendar } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Dashboard Overview',

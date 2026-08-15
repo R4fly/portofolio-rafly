@@ -19,7 +19,7 @@ import { useCommandMenuStore } from '@/lib/stores/command-store'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { LogoutButton } from './logout-button'
 import { ThemeToggle } from './theme-toggle'
-import { Menu, Command, LogIn, LayoutDashboard, User } from 'lucide-react'
+import { Menu, Command, LogIn, LayoutDashboard } from 'lucide-react'
 
 const navItems = [
   { href: '/', label: 'Home' },
