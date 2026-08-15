@@ -83,8 +83,18 @@ export function AudioPlayer({
     })
 
     wavesurfer.on('error', (err: unknown) => {
-      console.error('WaveSurfer error:', err)
-      // Fallback: generate synthetic waveform
+      const errorMessage = err instanceof Error
+        ? err.message
+        : err instanceof MediaError
+          ? `Media error code ${err.code}: ${err.message || 'Audio file gagal dimuat'}`
+          : typeof err === 'string'
+            ? err
+            : 'Unknown audio error'
+
+      console.error(`[AudioPlayer] Gagal memuat track "${track.title}":`, errorMessage)
+      console.warn(`[AudioPlayer] URL yang gagal: ${track.audio_url}`)
+      
+      // Fallback: tetap tampilkan card dengan synthetic waveform
       setIsReady(true)
       setDuration(track.duration ?? 30)
     })
