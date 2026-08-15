@@ -5,21 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { id as localeID } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { getSupabaseClient } from '@/lib/supabase/client'
 import { bookingFormSchema, type BookingFormData } from '@/lib/validations/booking'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
@@ -41,8 +33,6 @@ export function BookingForm() {
     defaultValues: {
       client_name: '',
       client_email: '',
-      booking_type: undefined,
-      scheduled_at: undefined,
       notes: '',
     },
   })
@@ -150,21 +140,21 @@ export function BookingForm() {
                   className="flex flex-col space-y-2"
                   disabled={mutation.isPending}
                 >
-                  <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border border-border/40 p-3 hover:border-primary/50 transition-colors">
+                  <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border border-border/40 p-3 transition-colors hover:border-primary/50">
                     <FormControl>
                       <RadioGroupItem value="web_consultation" />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer flex items-center gap-2">
+                    <FormLabel className="flex cursor-pointer items-center gap-2 font-normal">
                       <Code2 className="h-4 w-4 text-primary" />
                       Konsultasi Web Development
                     </FormLabel>
                   </FormItem>
 
-                  <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border border-border/40 p-3 hover:border-secondary/50 transition-colors">
+                  <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border border-border/40 p-3 transition-colors hover:border-secondary/50">
                     <FormControl>
                       <RadioGroupItem value="guitar_session" />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer flex items-center gap-2">
+                    <FormLabel className="flex cursor-pointer items-center gap-2 font-normal">
                       <Music className="h-4 w-4 text-secondary" />
                       Sesi Gitar / Kolaborasi Musik
                     </FormLabel>
@@ -176,43 +166,26 @@ export function BookingForm() {
           )}
         />
 
-        {/* Tanggal & Waktu (Calendar + Popover) */}
+        {/* Tanggal Sesi — Calendar INLINE (tanpa Popover, aman dari isu Base UI) */}
         <FormField
           control={form.control}
           name="scheduled_at"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Tanggal Sesi</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      disabled={mutation.isPending}
-                      className={cn(
-                        'w-full pl-3 text-left font-normal',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, 'EEEE, dd MMMM yyyy', { locale: localeID })
-                      ) : (
-                        <span>Pilih tanggal sesi</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4" />
+                Tanggal Sesi
+              </FormLabel>
+              <FormControl>
+                <div className="rounded-md border border-input bg-background">
                   <Calendar
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date()}
-                    initialFocus
                   />
-                </PopoverContent>
-              </Popover>
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 /**
  * Skema validasi untuk Booking Form.
- * scheduled_at harus date di masa depan (tidak boleh booking untuk masa lalu).
+ * Zod v4 syntax — gunakan `message` untuk custom error.
  */
 export const bookingFormSchema = z.object({
   client_name: z
@@ -16,11 +16,10 @@ export const bookingFormSchema = z.object({
     .max(255, { message: 'Email terlalu panjang' })
     .trim(),
   booking_type: z.enum(['web_consultation', 'guitar_session'], {
-    errorMap: () => ({ message: 'Pilih jenis sesi terlebih dahulu' }),
+    message: 'Pilih jenis sesi terlebih dahulu',
   }),
   scheduled_at: z.date({
-    required_error: 'Pilih tanggal dan waktu sesi',
-    invalid_type_error: 'Pilih tanggal dan waktu sesi',
+    message: 'Pilih tanggal dan waktu sesi',
   }),
   notes: z
     .string()
