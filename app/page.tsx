@@ -4,6 +4,7 @@ import { RealtimeStats } from '@/components/shared/realtime-stats'
 import { ProjectsGrid } from '@/components/shared/projects-grid'
 import { AudioShowcase } from '@/components/shared/audio-showcase'
 import { JourneyTimeline } from '@/components/shared/journey-timeline'
+import { ConversionSection } from '@/components/shared/conversion-section'
 
 export const metadata: Metadata = {
   title: 'Rafly Baehaqi — Junior Full-Stack Developer & Gitaris',
@@ -22,6 +23,7 @@ export default function HomePage() {
       <ProjectsGrid />
       <AudioShowcase />
       <JourneyTimeline />
+      <ConversionSection />
     </>
   )
 }
