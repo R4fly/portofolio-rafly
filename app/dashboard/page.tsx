@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { LayoutDashboard, MessageCircle, Calendar } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -35,8 +36,8 @@ export default function DashboardPage() {
             <CardDescription>Komunikasi realtime dengan developer</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full" disabled>
-              Segera Hadir
+            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Link href="/dashboard/chat">Buka Chat</Link>
             </Button>
           </CardContent>
         </Card>
@@ -50,8 +51,8 @@ export default function DashboardPage() {
             <CardDescription>Lihat jadwal sesi yang Anda pesan</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full" disabled>
-              Segera Hadir
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/dashboard/bookings">Lihat Booking</Link>
             </Button>
           </CardContent>
         </Card>
@@ -71,18 +72,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Info Note */}
-      <Card className="mt-8 border-primary/20 bg-primary/5">
-        <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">Catatan:</strong> Fitur lengkap
-            dashboard (Live Chat, Booking Management, Project Tracker) akan
-            ditambahkan di fase berikutnya. Untuk sekarang, Anda dapat menjelajahi
-            dashboard dan melihat placeholder yang akan segera diimplementasikan.
-          </p>
-        </CardContent>
-      </Card>
     </div>
   )
 }
