@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Cookie, X } from 'lucide-react'
+import { useCookieStore } from '@/lib/stores/cookie-store'
 
 /**
  * Cookie Banner — GDPR/privacy compliant cookie consent.
@@ -13,28 +14,49 @@ import { Cookie, X } from 'lucide-react'
  * - Desktop: bottom-right corner
  * - Mobile: bottom-full-width, di ATAS Sticky Mobile CTA
  * - Z-index: 45 (di bawah modal 50, di atas sticky CTA 40)
+ *
+ * Menggunakan Zustand store untuk reactive state management.
+ * Proper mount checks untuk avoid React warnings.
  */
 export function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false)
+  const { consent, setConsent } = useCookieStore()
+  const mountedRef = useRef(false)
 
+  // Track mounted state
   useEffect(() => {
-    const consent = localStorage.getItem('cookie-consent')
-    if (!consent) {
-      // Delay 2 detik agar tidak muncul terlalu agresif
-      const timer = window.setTimeout(() => setIsVisible(true), 2000)
-      return (): void => {
-        window.clearTimeout(timer)
-      }
+    mountedRef.current = true
+    return (): void => {
+      mountedRef.current = false
     }
   }, [])
 
+  // Show banner dengan delay jika belum ada consent
+  useEffect(() => {
+    if (consent === 'pending') {
+      const timer = window.setTimeout(() => {
+        if (mountedRef.current) {
+          setIsVisible(true)
+        }
+      }, 2000)
+      return (): void => {
+        window.clearTimeout(timer)
+      }
+    } else {
+      // Consent sudah ada, hide banner
+      if (mountedRef.current) {
+        setIsVisible(false)
+      }
+    }
+  }, [consent])
+
   function handleAccept(): void {
-    localStorage.setItem('cookie-consent', 'accepted')
+    setConsent('accepted')
     setIsVisible(false)
   }
 
   function handleDecline(): void {
-    localStorage.setItem('cookie-consent', 'declined')
+    setConsent('declined')
     setIsVisible(false)
   }
 

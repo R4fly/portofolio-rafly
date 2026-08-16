@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useCookieStore } from '@/lib/stores/cookie-store'
 import { useEffect, useState } from 'react'
 
 /**
@@ -16,30 +17,17 @@ import { useEffect, useState } from 'react'
  * - Desktop (width >= 768px)
  * - Saat Cookie Banner visible (hindari overlap)
  *
- * Strategi anti-overlap dengan Cookie Banner:
- * - Poll localStorage setiap 500ms untuk cek cookie-consent
- * - Jika belum ada consent, sembunyikan Mobile CTA
- * - Jika sudah ada consent, tampilkan Mobile CTA
- *
- * Accessibility: respects safe-area-inset untuk iPhone notch
+ * Menggunakan Zustand store untuk reactive state.
+ * Mounted state untuk avoid hydration mismatch.
  */
 export function StickyMobileCta() {
   const pathname = usePathname()
-  const [hasConsent, setHasConsent] = useState(false)
+  const { hasConsent } = useCookieStore()
+  const [mounted, setMounted] = useState(false)
 
-  // Poll localStorage untuk cek cookie consent
+  // Wait hingga client-side mounted untuk avoid hydration mismatch
   useEffect(() => {
-    function checkConsent(): void {
-      const consent = localStorage.getItem('cookie-consent')
-      setHasConsent(!!consent)
-    }
-
-    checkConsent() // Initial check
-
-    const interval = window.setInterval(checkConsent, 500)
-    return (): void => {
-      window.clearInterval(interval)
-    }
+    setMounted(true)
   }, [])
 
   // Hide di halaman yang tidak perlu CTA floating
@@ -47,9 +35,10 @@ export function StickyMobileCta() {
   const isPageHidden = hiddenPaths.some((path) => pathname.startsWith(path))
 
   // Hide jika belum ada cookie consent (banner masih visible)
-  const isHidden = isPageHidden || !hasConsent
+  const isHidden = isPageHidden || !hasConsent()
 
-  if (isHidden) return null
+  // Jangan render apa-apa saat SSR atau sebelum mounted
+  if (!mounted || isHidden) return null
 
   return (
     <div

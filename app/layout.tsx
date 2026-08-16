@@ -13,7 +13,7 @@ import { StickyMobileCta } from '@/components/shared/sticky-mobile-cta'
 import { GlobalScanner } from '@/components/shared/global-scanner'
 import { StructuredData } from '@/components/shared/structured-data'
 
-// Font optimization: display: swap untuk avoid FOIT (Flash of Invisible Text)
+// Font optimization
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -96,7 +96,42 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
-        {/* Inline script untuk set theme sebelum hydration (avoid flash) */}
+        {/* Critical CSS inlining untuk FCP optimization */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              body {
+                margin: 0;
+                font-family: var(--font-sans), system-ui, sans-serif;
+                -webkit-font-smoothing: antialiased;
+                background-color: hsl(var(--background));
+                color: hsl(var(--foreground));
+              }
+              .dark body {
+                background-color: hsl(222 47% 6%);
+                color: hsl(210 40% 98%);
+              }
+              header, main, footer {
+                position: relative;
+                z-index: 10;
+              }
+              .container {
+                width: 100%;
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 1rem;
+              }
+              @media (min-width: 640px) {
+                .container { padding: 0 1.5rem; }
+              }
+              @media (min-width: 1024px) {
+                .container { padding: 0 2rem; }
+              }
+            `,
+          }}
+        />
+
+        {/* Inline theme script - di <head> untuk avoid flash, suppressHydrationWarning handle mismatch */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

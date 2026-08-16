@@ -85,7 +85,7 @@ export function ProjectsGrid() {
                 key={project.id}
                 className="group flex h-full flex-col overflow-hidden border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
               >
-                {/* Thumbnail - fixed aspect ratio */}
+                {/* Thumbnail - fixed aspect ratio dengan next/image optimization */}
                 <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-muted">
                   {project.thumbnail_url ? (
                     <Image
@@ -95,6 +95,8 @@ export function ProjectsGrid() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
+                      quality={85}
+                      priority={false}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
