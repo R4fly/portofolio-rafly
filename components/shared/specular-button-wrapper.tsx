@@ -1,16 +1,17 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { useTheme } from 'next-themes'
 import { type ReactNode, type MouseEventHandler } from 'react'
 import { ArrowRight } from 'lucide-react'
 
-// Lazy load untuk hindari SSR WebGL issues dan kurangi initial bundle
+// Lazy load untuk hindari WebGL init saat first paint
 const SpecularButtonRaw = dynamic(() => import('./specular-button'), {
   ssr: false,
   loading: () => (
     <button
       type="button"
-      className="inline-flex h-14 items-center justify-center gap-2 rounded-lg bg-primary px-10 text-base font-semibold text-primary-foreground shadow-lg transition-opacity"
+      className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg"
       aria-busy="true"
     >
       Loading...
@@ -24,19 +25,19 @@ interface SpecularButtonWrapperProps {
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   className?: string
-  /**
-   * Color theme:
-   * - 'primary' (cyan) — untuk CTA utama
-   * - 'secondary' (amber) — untuk CTA musik
-   */
   variant?: 'primary' | 'secondary'
-  /** Tampilkan icon ArrowRight di sebelah kanan label */
   showArrow?: boolean
 }
 
 /**
- * Wrapper yang menyediakan theme-aware colors dan safe SSR loading state.
- * Gunakan ini di aplikasi, jangan import SpecularButton langsung.
+ * Wrapper theme-aware untuk SpecularButton.
+ *
+ * FIX LIGHT MODE:
+ * - Light: teks GELAP (#0f172a) + rim cyan/amber gelap → visible di background putih
+ * - Dark: teks TERANG (#f8fafc) + rim cyan/amber terang → visible di background gelap
+ *
+ * Server render default ke dark config; client switch setelah mount
+ * (resolvedTheme undefined di server → tidak ada hydration mismatch).
  */
 export function SpecularButtonWrapper({
   children,
@@ -47,22 +48,41 @@ export function SpecularButtonWrapper({
   variant = 'primary',
   showArrow = false,
 }: SpecularButtonWrapperProps) {
+  const { resolvedTheme } = useTheme()
+  const isLight = resolvedTheme === 'light'
+
   const themeConfig =
     variant === 'primary'
-      ? {
-          lineColor: '#22d3ee', // cyan-400 (primary)
-          baseColor: '#164e63', // cyan-900 (edge)
-          textColor: '#f8fafc', // slate-50
-          tint: '#22d3ee',
-          tintOpacity: 0.08,
-        }
-      : {
-          lineColor: '#fbbf24', // amber-400 (secondary)
-          baseColor: '#78350f', // amber-900 (edge)
-          textColor: '#f8fafc',
-          tint: '#fbbf24',
-          tintOpacity: 0.08,
-        }
+      ? isLight
+        ? {
+            lineColor: '#0284c7', // sky-600 (rim gelap, visible di putih)
+            baseColor: '#64748b', // slate-500 (edge stroke)
+            textColor: '#0f172a', // slate-900 (LABEL GELAP — visible di putih)
+            tint: '#0ea5e9',
+            tintOpacity: 0.12,
+          }
+        : {
+            lineColor: '#22d3ee',
+            baseColor: '#164e63',
+            textColor: '#f8fafc',
+            tint: '#22d3ee',
+            tintOpacity: 0.08,
+          }
+      : isLight
+        ? {
+            lineColor: '#d97706', // amber-600
+            baseColor: '#64748b',
+            textColor: '#0f172a',
+            tint: '#f59e0b',
+            tintOpacity: 0.12,
+          }
+        : {
+            lineColor: '#fbbf24',
+            baseColor: '#78350f',
+            textColor: '#f8fafc',
+            tint: '#fbbf24',
+            tintOpacity: 0.08,
+          }
 
   return (
     <SpecularButtonRaw

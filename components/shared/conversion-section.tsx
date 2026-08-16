@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTheme } from 'next-themes'
 import {
   Card,
   CardContent,
@@ -19,17 +20,18 @@ import { cn } from '@/lib/utils'
 type TabValue = 'contact' | 'booking'
 
 /**
- * Conversion Section — Custom tab switcher.
+ * Conversion Section.
  *
- * FIX LAYOUT: shadcn Tabs ternyata render TabsList & TabsContent side-by-side
- * di environment ini. Diganti dengan custom switcher berbasis useState yang
- * PASTI stack vertikal (tablist di atas, form di bawah, full-width).
- *
- * Accessibility: role="tablist"/"tab", aria-selected, aria-controls,
- * dan keyboard support native via <button>.
+ * FIX LIGHT MODE: ShinyText eyebrow kini theme-aware:
+ * - Light: cyan GELAP hsl(199, 89%, 30%) → rasio ~5:1 di atas putih
+ * - Dark: cyan terang hsl(199, 89%, 55%) → rasio ~7:1 di atas gelap
  */
 export function ConversionSection() {
   const [activeTab, setActiveTab] = useState<TabValue>('contact')
+  const { resolvedTheme } = useTheme()
+  const isLight = resolvedTheme === 'light'
+
+  const eyebrowColor = isLight ? 'hsl(199, 89%, 30%)' : 'hsl(199, 89%, 55%)'
 
   return (
     <section className="container px-5 py-14 md:py-24" id="contact">
@@ -37,8 +39,8 @@ export function ConversionSection() {
         eyebrow={
           <ShinyText
             text="GET IN TOUCH"
-            color="hsl(199, 89%, 55%)"
-            shineColor="#ffffff"
+            color={eyebrowColor}
+            shineColor={isLight ? '#0ea5e9' : '#ffffff'}
             speed={3}
             spread={120}
             direction="left"
@@ -80,9 +82,8 @@ export function ConversionSection() {
         </Badge>
       </div>
 
-      {/* Custom Tab Switcher — PASTI stack vertikal */}
+      {/* Custom Tab Switcher */}
       <div className="mx-auto w-full max-w-2xl">
-        {/* Tablist */}
         <div
           role="tablist"
           aria-label="Pilih metode kontak"
