@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy',
+  title: "Privacy Policy",
   description:
-    'Kebijakan privasi website portfolio Rafly Baehaqi. Pelajari bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.',
+    "Kebijakan privasi website Rafly Baehaqi. Cara kami melindungi data pribadi Anda.",
   alternates: {
-    canonical: '/privacy-policy',
+    canonical: "/privacy-policy",
   },
 }
 

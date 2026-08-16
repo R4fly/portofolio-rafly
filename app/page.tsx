@@ -8,11 +8,11 @@ import { RealtimeGuestbook } from '@/components/shared/realtime-guestbook'
 import { ConversionSection } from '@/components/shared/conversion-section'
 
 export const metadata: Metadata = {
-  title: 'Rafly Baehaqi — Junior Full-Stack Developer & Gitaris',
+  title: "Rafly Baehaqi — Junior Full-Stack Developer & Gitaris",
   description:
-    'Portfolio Rafly Baehaqi. Junior Full-Stack Developer dari Yogyakarta yang memadukan presisi kode dengan jiwa musik. Lihat proyek web unggulan dan audio showcase gitar.',
+    "Portfolio Rafly Baehaqi — Developer & Gitaris Yogyakarta. Lihat proyek web unggulan dan audio showcase gitar.",
   alternates: {
-    canonical: '/',
+    canonical: "/",
   },
 }
 

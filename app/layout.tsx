@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | Rafly Baehaqi",
   },
   description:
-    "Portfolio mewah Rafly Baehaqi. Membangun aplikasi web responsif dengan ritme kode yang presisi, dipadukan dengan soul musik blues & rock.",
+    "Portfolio Rafly Baehaqi. Junior Full-Stack Developer & Gitaris dari Yogyakarta. Next.js, TypeScript, Supabase + blues & rock.",
   keywords: [
     "Next.js",
     "React",
@@ -41,6 +41,8 @@ export const metadata: Metadata = {
     "Gitaris",
     "Portfolio",
     "Yogyakarta",
+    "Full-Stack",
+    "TypeScript",
   ],
   authors: [{ name: "Rafly Baehaqi" }],
   creator: "Rafly Baehaqi",

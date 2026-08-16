@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service',
+  title: "Terms of Service",
   description:
-    'Syarat dan ketentuan penggunaan website portfolio Rafly Baehaqi. Baca dengan seksama sebelum menggunakan layanan kami.',
+    "Syarat dan ketentuan penggunaan website portfolio Rafly Baehaqi.",
   alternates: {
-    canonical: '/terms',
+    canonical: "/terms",
   },
 }
 
