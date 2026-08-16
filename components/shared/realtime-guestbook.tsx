@@ -1,234 +1,118 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { useGuestbook, useAddGuestbookEntry } from '@/lib/queries/guestbook'
-import type { GuestbookEntry } from '@/lib/queries/guestbook'
-import { useRealtimeGuestbook } from '@/lib/hooks/use-realtime-guestbook'
-import { guestbookFormSchema, type GuestbookFormData } from '@/lib/validations/guestbook'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent } from '@/components/ui/card'
+import { useGuestbook, type GuestbookEntry } from '@/lib/queries/guestbook'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
 import { SectionHeader } from './section-header'
-import { formatDate, cn } from '@/lib/utils'
-import { Loader2, Send, MessageCircle } from 'lucide-react'
-
-/**
- * Sub-component: Card untuk setiap pesan guestbook.
- */
-function GuestbookMessageCard({ entry }: { entry: GuestbookEntry }) {
-  const initials = entry.name
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-
-  return (
-    <Card
-      className={cn(
-        'animate-fade-in border-border/40 bg-card/50 backdrop-blur',
-        'transition-all duration-300 hover:border-primary/30'
-      )}
-    >
-      <CardContent className="flex gap-4 p-5">
-        <Avatar className="h-10 w-10 shrink-0">
-          <AvatarFallback className="bg-primary/10 font-mono text-sm font-semibold text-primary">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
-            <span className="font-sans text-sm font-semibold text-foreground">
-              {entry.name}
-            </span>
-            <time className="font-mono text-xs text-muted-foreground">
-              {formatDate(entry.created_at)}
-            </time>
-          </div>
-          <p className="break-words text-sm leading-relaxed text-muted-foreground">
-            {entry.message}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-/**
- * Sub-component: Skeleton loading untuk message list.
- */
-function GuestbookSkeleton() {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <Card key={index} className="border-border/40 bg-card/50">
-          <CardContent className="flex gap-4 p-5">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="flex-1 space-y-2">
-              <div className="flex justify-between">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-20" />
-              </div>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  )
-}
+import { GuestbookForm } from '@/components/forms/guestbook-form'
+import { QueryErrorState } from './query-error-state'
+import { useLoadingTimeout } from './query-loading-timeout'
+import { MessageCircle, Quote } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { id } from 'date-fns/locale'
 
 export function RealtimeGuestbook() {
-  const { data: entries, isLoading } = useGuestbook()
-  const addEntryMutation = useAddGuestbookEntry()
-
-  // Subscribe ke realtime updates
-  useRealtimeGuestbook()
-
-  const form = useForm<GuestbookFormData>({
-    resolver: zodResolver(guestbookFormSchema),
-    defaultValues: {
-      name: '',
-      message: '',
-    },
-  })
-
-  function onSubmit(data: GuestbookFormData): void {
-    addEntryMutation.mutate(data, {
-      onSuccess: () => {
-        form.reset()
-        toast.success('Pesan Anda berhasil dikirim!')
-      },
-      onError: (error: Error) => {
-        toast.error(`Gagal mengirim pesan: ${error.message}`)
-      },
-    })
-  }
+  const { data: entries, isLoading, isError, isFetching, refetch } = useGuestbook()
+  const loadingTimedOut = useLoadingTimeout(isLoading)
+  const showError = isError || loadingTimedOut
 
   return (
-    <section className="container py-16 md:py-24" id="guestbook">
+    <section className="container px-5 py-14 md:py-24" id="guestbook">
       <SectionHeader
-        eyebrow={
-          <span className="inline-flex items-center gap-2">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-            Live Realtime
-          </span>
-        }
+        eyebrow="Guestbook"
         title={
           <>
-            Buku <span className="text-primary">Tamu</span>
+            Tinggalkan <span className="text-primary">Jejak</span> Anda
           </>
         }
-        description="Tinggalkan jejak Anda. Setiap pesan muncul secara realtime di layar semua pengunjung tanpa perlu reload."
+        description="Tulis pesan, kesan, atau pertanyaan. Semua pesan akan saya baca dan balas."
       />
 
-      <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_1.2fr]">
-        {/* Form Submit */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {/* Form (selalu render) */}
+        <div>
           <Card className="border-border/40 bg-card/50 backdrop-blur">
-            <CardContent className="pt-6">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nama</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nama Anda"
-                            autoComplete="name"
-                            disabled={addEntryMutation.isPending}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pesan</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Tulis pesan untuk Rafly..."
-                            rows={4}
-                            disabled={addEntryMutation.isPending}
-                            className="resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button
-                    type="submit"
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    disabled={addEntryMutation.isPending}
-                  >
-                    {addEntryMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Mengirim...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Kirim Pesan
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </Form>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-sans text-xl">
+                <MessageCircle className="h-5 w-5 text-primary" aria-hidden="true" />
+                Tulis Pesan
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GuestbookForm />
             </CardContent>
           </Card>
         </div>
 
-        {/* Message List */}
-        <div className="space-y-4">
+        {/* Entries List */}
+        <div>
           {/* Loading State */}
-          {isLoading && <GuestbookSkeleton />}
+          {isLoading && !showError && (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="border-border/40 bg-card/50">
+                  <CardContent className="space-y-2 pt-5">
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Error State */}
+          {showError && !isLoading && (
+            <QueryErrorState
+              title="Guestbook gagal dimuat"
+              message="Pesan Anda tetap bisa dikirim. Klik 'Coba Lagi' untuk lihat pesan lain."
+              onRetry={() => refetch()}
+              isRetrying={isFetching}
+            />
+          )}
 
           {/* Empty State */}
-          {!isLoading && entries && entries.length === 0 && (
+          {!isLoading && !showError && Array.isArray(entries) && entries.length === 0 && (
             <Card className="border-dashed border-border/40 bg-card/30">
               <CardContent className="flex flex-col items-center py-12 text-center">
-                <MessageCircle className="mb-3 h-10 w-10 text-muted-foreground" />
-                <p className="font-medium text-foreground">Belum ada pesan</p>
+                <Quote className="mb-3 h-10 w-10 text-muted-foreground" />
+                <p className="font-medium">Belum ada pesan</p>
                 <p className="text-sm text-muted-foreground">
-                  Jadilah yang pertama meninggalkan pesan!
+                  Jadilah yang pertama menulis di guestbook ini!
                 </p>
               </CardContent>
             </Card>
           )}
 
-          {/* Messages */}
-          {!isLoading &&
-            entries &&
-            entries.map((entry) => (
-              <GuestbookMessageCard key={entry.id} entry={entry} />
-            ))}
+          {/* Success State */}
+          {!isLoading && !showError && Array.isArray(entries) && entries.length > 0 && (
+            <div className="space-y-4">
+              {entries.slice(0, 10).map((entry: GuestbookEntry) => (
+                <Card
+                  key={entry.id}
+                  className="border-border/40 bg-card/50 backdrop-blur transition-colors hover:border-primary/30"
+                >
+                  <CardContent className="pt-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="font-semibold text-foreground">{entry.name}</p>
+                      <time className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(entry.created_at), {
+                          addSuffix: true,
+                          locale: id,
+                        })}
+                      </time>
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {entry.message}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

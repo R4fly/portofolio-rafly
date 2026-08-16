@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useCommandMenuStore } from '@/lib/stores/command-store'
 import { useProjects } from '@/lib/queries/projects'
 import { useTracks } from '@/lib/queries/tracks'
+import type { Project, Track } from '@/types/database'
 import {
   STATIC_COMMANDS,
   NO_RESULTS_TEXT,
@@ -30,8 +31,12 @@ export function CommandMenu() {
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
-  const { data: projects = [] } = useProjects()
-  const { data: tracks = [] } = useTracks()
+  const { data: projects } = useProjects()
+  const { data: tracks } = useTracks()
+
+  // Type guards
+  const projectList: Project[] = Array.isArray(projects) ? projects : []
+  const trackList: Track[] = Array.isArray(tracks) ? tracks : []
 
   const allItems = useMemo<FlattenedItem[]>(() => {
     const items: FlattenedItem[] = []
@@ -51,15 +56,15 @@ export function CommandMenu() {
 
     const lowerQuery = query.toLowerCase()
     if (lowerQuery) {
-      projects
+      projectList
         .filter(
-          (p) =>
+          (p: Project) =>
             p.title.toLowerCase().includes(lowerQuery) ||
             p.slug.toLowerCase().includes(lowerQuery) ||
-            p.tech_stack?.some((t) => t.toLowerCase().includes(lowerQuery))
+            p.tech_stack?.some((t: string) => t.toLowerCase().includes(lowerQuery))
         )
         .slice(0, 5)
-        .forEach((project) => {
+        .forEach((project: Project) => {
           items.push({
             id: `project-${project.id}`,
             label: project.title,
@@ -70,14 +75,14 @@ export function CommandMenu() {
           })
         })
 
-      tracks
+      trackList
         .filter(
-          (t) =>
+          (t: Track) =>
             t.title.toLowerCase().includes(lowerQuery) ||
-            t.genre?.toLowerCase().includes(lowerQuery)
+            (t.genre?.toLowerCase() ?? '').includes(lowerQuery)
         )
         .slice(0, 5)
-        .forEach((track) => {
+        .forEach((track: Track) => {
           items.push({
             id: `track-${track.id}`,
             label: track.title,
@@ -90,7 +95,7 @@ export function CommandMenu() {
     }
 
     return items
-  }, [query, projects, tracks])
+  }, [query, projectList, trackList])
 
   useEffect(() => {
     setSelectedIndex(0)
@@ -144,7 +149,7 @@ export function CommandMenu() {
         onClick={close}
       />
 
-      {/* Dialog — wrapped dengan GlassSurface untuk efek frosted glass */}
+      {/* Dialog */}
       <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-[48%]">
         <GlassSurface
           width="100%"

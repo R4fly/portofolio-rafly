@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getSupabaseClient } from '@/lib/supabase/client'
+import { PUBLIC_QUERY_OPTIONS } from '@/lib/query-config'
 import type { Project } from '@/types/database'
 
 export async function fetchAllProjects(): Promise<Project[]> {
@@ -53,10 +54,19 @@ export async function fetchProjectBySlug(slug: string): Promise<Project | null> 
 }
 
 export function useProjects() {
-  return useQuery<Project[]>({
+  return useQuery<Project[], Error>({
     queryKey: ['projects'],
-    queryFn: fetchAllProjects,
-    staleTime: 5 * 60 * 1000, // 5 menit
+    queryFn: async () => {
+      const supabase = getSupabaseClient()
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return data || []
+    },
+    ...PUBLIC_QUERY_OPTIONS,
   })
 }
 

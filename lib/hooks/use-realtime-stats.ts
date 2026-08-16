@@ -3,12 +3,22 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { getSupabaseClient } from '@/lib/supabase/client'
-import type { StatsMap } from '@/lib/queries/stats'
+import type { LiveStats } from '@/lib/queries/stats'
 
 /**
- * Hook untuk subscribe ke perubahan realtime pada tabel live_stats.
- * Ketika ada UPDATE di database, React Query cache langsung di-update
- * sehingga UI ter-render ulang tanpa perlu refetch manual.
+ * Alias StatsMap untuk kompatibilitas dengan code lama.
+ * StatsMap = LiveStats (struktur data stats yang sama).
+ */
+type StatsMap = LiveStats
+
+/**
+ * Hook untuk subscribe ke realtime changes di tabel live_stats.
+ *
+ * Strategi:
+ * - Subscribe ke channel Supabase realtime
+ * - Update React Query cache saat ada perubahan
+ * - Auto-unsubscribe saat component unmount
+ * - Type-safe dengan explicit LiveStats interface
  */
 export function useRealtimeStats() {
   const queryClient = useQueryClient()
@@ -17,40 +27,76 @@ export function useRealtimeStats() {
     const supabase = getSupabaseClient()
 
     const channel = supabase
-      .channel('live-stats-realtime')
+      .channel('live_stats_changes')
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'live_stats',
         },
         (payload) => {
-          const newRecord = payload.new as {
-            metric_key: string
-            metric_value: number
-            updated_at: string
-          }
+          // Update cache dengan data baru
+          queryClient.setQueryData<LiveStats>(
+            ['live-stats', 'stats'],
+            (oldData: LiveStats | undefined): LiveStats => {
+              // Jika belum ada data, return default
+              const current = oldData || {
+                github_commits: 500,
+                hours_practiced: 1200,
+                projects_active: 3,
+                lines_of_code: 50000,
+              }
 
-          queryClient.setQueryData<StatsMap>(['stats'], (oldData) => {
-            if (!oldData) return oldData
+              // Handle INSERT/UPDATE/DELETE payload
+              const newData = payload.new as Record<string, unknown> | null
 
-            const updatedStats = { ...oldData }
+              if (!newData) return current
 
-            if (newRecord.metric_key in updatedStats) {
-              updatedStats[newRecord.metric_key as keyof Omit<StatsMap, 'updated_at'>] =
-                newRecord.metric_value
+              // Schema flat: langsung merge
+              if ('github_commits' in newData || 'hours_practiced' in newData) {
+                return {
+                  github_commits:
+                    Number(newData.github_commits) || current.github_commits,
+                  hours_practiced:
+                    Number(newData.hours_practiced) || current.hours_practiced,
+                  projects_active:
+                    Number(newData.projects_active) || current.projects_active,
+                  lines_of_code:
+                    Number(newData.lines_of_code) || current.lines_of_code,
+                }
+              }
+
+              // Schema key-value: update specific key
+              if ('metric_key' in newData && 'metric_value' in newData) {
+                const key = newData.metric_key as keyof LiveStats
+                const value = Number(newData.metric_value) || 0
+                if (key in current) {
+                  return { ...current, [key]: value }
+                }
+              }
+
+              return current
             }
-            updatedStats.updated_at = newRecord.updated_at
+          )
 
-            return updatedStats
+          // Juga invalidate untuk trigger refetch jika perlu
+          queryClient.invalidateQueries({
+            queryKey: ['live-stats'],
+            exact: false,
           })
         }
       )
       .subscribe()
 
-    return () => {
+    // Cleanup: unsubscribe saat component unmount
+    return (): void => {
       supabase.removeChannel(channel)
     }
   }, [queryClient])
 }
+
+/**
+ * Re-export StatsMap type untuk kompatibilitas.
+ */
+export type { StatsMap }

@@ -8,11 +8,17 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SectionHeader } from './section-header'
 import { GithubIcon } from './icons/github-icon'
+import { QueryErrorState } from './query-error-state'
+import { useLoadingTimeout } from './query-loading-timeout'
 import BorderGlow from './border-glow'
 import { ExternalLink, FolderKanban, Star } from 'lucide-react'
 
 export function ProjectsGrid() {
-  const { data: projects, isLoading, isError } = useProjects()
+  const { data: projects, isLoading, isError, isFetching, refetch } = useProjects()
+  const loadingTimedOut = useLoadingTimeout(isLoading)
+
+  // Treat timeout sebagai error
+  const showError = isError || loadingTimedOut
 
   return (
     <section className="container px-5 py-14 md:py-24" id="projects">
@@ -26,8 +32,8 @@ export function ProjectsGrid() {
         description="Koleksi proyek web terbaik yang saya bangun — dari SaaS hingga eksperimen teknis."
       />
 
-      {/* Loading State */}
-      {isLoading && (
+      {/* Loading State - Skeleton (max 10 detik) */}
+      {isLoading && !showError && (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="border-border/40 bg-card/50">
@@ -52,19 +58,22 @@ export function ProjectsGrid() {
         </div>
       )}
 
-      {/* Error State */}
-      {isError && (
-        <Card className="border-destructive/40 bg-destructive/5">
-          <CardContent className="pt-6">
-            <p className="text-center text-sm text-destructive">
-              Gagal memuat proyek. Silakan refresh halaman.
-            </p>
-          </CardContent>
-        </Card>
+      {/* Error State - dengan tombol Retry */}
+      {showError && !isLoading && (
+        <QueryErrorState
+          title="Proyek gagal dimuat"
+          message={
+            loadingTimedOut
+              ? 'Koneksi terlalu lambat. Silakan coba lagi.'
+              : 'Terjadi masalah saat memuat daftar proyek.'
+          }
+          onRetry={() => refetch()}
+          isRetrying={isFetching}
+        />
       )}
 
       {/* Empty State */}
-      {!isLoading && projects && projects.length === 0 && (
+      {!isLoading && !showError && projects && projects.length === 0 && (
         <Card className="border-dashed border-border/40 bg-card/30">
           <CardContent className="flex flex-col items-center py-16 text-center">
             <FolderKanban className="mb-3 h-12 w-12 text-muted-foreground" />
@@ -77,7 +86,7 @@ export function ProjectsGrid() {
       )}
 
       {/* Projects Grid */}
-      {!isLoading && projects && projects.length > 0 && (
+      {!isLoading && !showError && projects && projects.length > 0 && (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {projects.map((project) => {
             const ProjectCard = (
@@ -85,7 +94,6 @@ export function ProjectsGrid() {
                 key={project.id}
                 className="group flex h-full flex-col overflow-hidden border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
               >
-                {/* Thumbnail */}
                 <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-muted">
                   {project.thumbnail_url ? (
                     <Image
@@ -96,7 +104,6 @@ export function ProjectsGrid() {
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                       quality={85}
-                      priority={false}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
@@ -111,7 +118,6 @@ export function ProjectsGrid() {
                   )}
                 </div>
 
-                {/* Content */}
                 <CardContent className="flex flex-1 flex-col p-5">
                   <div className="mb-3">
                     <h3 className="mb-1.5 line-clamp-1 font-sans text-lg font-bold tracking-tight text-foreground md:text-xl">
@@ -122,14 +128,9 @@ export function ProjectsGrid() {
                     </p>
                   </div>
 
-                  {/* Tech Stack */}
                   <div className="mb-4 flex min-h-[2.5rem] flex-wrap gap-1.5">
                     {project.tech_stack.slice(0, 4).map((tech) => (
-                      <Badge
-                        key={tech}
-                        variant="secondary"
-                        className="font-mono text-xs"
-                      >
+                      <Badge key={tech} variant="secondary" className="font-mono text-xs">
                         {tech}
                       </Badge>
                     ))}
@@ -140,7 +141,6 @@ export function ProjectsGrid() {
                     )}
                   </div>
 
-                  {/* Action Links */}
                   <div className="mt-auto flex gap-2 border-t border-border/40 pt-4">
                     {project.live_url && (
                       <Button
@@ -149,11 +149,7 @@ export function ProjectsGrid() {
                         asChild
                         className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                       >
-                        <a
-                          href={project.live_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <a href={project.live_url} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="mr-2 h-4 w-4" />
                           Live Demo
                         </a>
@@ -166,20 +162,14 @@ export function ProjectsGrid() {
                         asChild
                         className={project.live_url ? 'flex-1' : 'w-full'}
                       >
-                        <a
-                          href={project.repository_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <a href={project.repository_url} target="_blank" rel="noopener noreferrer">
                           <GithubIcon className="mr-2 h-4 w-4" />
                           Source
                         </a>
                       </Button>
                     )}
                     {!project.live_url && !project.repository_url && (
-                      <p className="text-xs text-muted-foreground">
-                        Link tidak tersedia
-                      </p>
+                      <p className="text-xs text-muted-foreground">Link tidak tersedia</p>
                     )}
                   </div>
                 </CardContent>
