@@ -5,10 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAddBooking } from '@/lib/queries/bookings'
-import {
-  bookingFormSchema,
-  type BookingFormData,
-} from '@/lib/validations/booking'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -30,6 +27,35 @@ import {
 } from '@/components/ui/form'
 import { Loader2, CalendarCheck } from 'lucide-react'
 
+/**
+ * Local booking form schema — menggunakan string untuk scheduled_at
+ * karena <input type="datetime-local"> expects string format.
+ */
+const bookingFormSchema = z.object({
+  client_name: z
+    .string()
+    .min(2, { message: 'Nama minimal 2 karakter' })
+    .max(100, { message: 'Nama maksimal 100 karakter' })
+    .trim(),
+  client_email: z
+    .string()
+    .email({ message: 'Email tidak valid' })
+    .max(255, { message: 'Email maksimal 255 karakter' })
+    .trim(),
+  booking_type: z.enum(['web_consultation', 'guitar_session'], {
+    message: 'Pilih tipe sesi',  // Zod v4 syntax
+  }),
+  scheduled_at: z
+    .string()
+    .min(1, { message: 'Tanggal dan waktu wajib diisi' }),
+  notes: z
+    .string()
+    .max(1000, { message: 'Catatan maksimal 1000 karakter' })
+    .optional(),
+})
+
+type BookingFormData = z.infer<typeof bookingFormSchema>
+
 export function BookingForm() {
   const router = useRouter()
   const addBookingMutation = useAddBooking()
@@ -46,18 +72,30 @@ export function BookingForm() {
   })
 
   function onSubmit(data: BookingFormData): void {
-    addBookingMutation.mutate(data, {
-      onSuccess: () => {
-        toast.success(
-          'Booking berhasil dijadwalkan! Anda akan menerima konfirmasi via email.'
-        )
-        form.reset()
-        router.push('/thank-you')
+    // Convert datetime-local string ke ISO string untuk database
+    const scheduledAtISO = new Date(data.scheduled_at).toISOString()
+
+    addBookingMutation.mutate(
+      {
+        client_name: data.client_name,
+        client_email: data.client_email,
+        booking_type: data.booking_type,
+        scheduled_at: scheduledAtISO,
+        notes: data.notes?.trim() || null,
       },
-      onError: (error: Error) => {
-        toast.error(`Gagal menjadwalkan booking: ${error.message}`)
-      },
-    })
+      {
+        onSuccess: () => {
+          toast.success(
+            'Booking berhasil dijadwalkan! Anda akan menerima konfirmasi via email.'
+          )
+          form.reset()
+          router.push('/thank-you')
+        },
+        onError: (error: Error) => {
+          toast.error(`Gagal menjadwalkan booking: ${error.message}`)
+        },
+      }
+    )
   }
 
   // Min date = sekarang (hindari booking di masa lalu)
@@ -149,7 +187,7 @@ export function BookingForm() {
           )}
         />
 
-        {/* Scheduled At */}
+        {/* Scheduled At - datetime-local expects string value */}
         <FormField
           control={form.control}
           name="scheduled_at"

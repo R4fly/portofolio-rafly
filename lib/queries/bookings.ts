@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSupabaseClient } from '@/lib/supabase/client'
 import type { Booking } from '@/types/database'
 
@@ -56,5 +56,45 @@ export function useBooking(bookingId: string) {
     queryFn: () => fetchBookingById(bookingId),
     enabled: !!bookingId,
     staleTime: 2 * 60 * 1000,
+  })
+}
+
+export interface BookingInput {
+  client_name: string
+  client_email: string
+  booking_type: 'web_consultation' | 'guitar_session'
+  scheduled_at: string // ISO string format
+  notes?: string | null
+}
+
+/**
+ * Mutation untuk menambahkan booking baru dari public form.
+ * Booking akan muncul di admin dashboard dengan status 'pending'.
+ */
+export function useAddBooking() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, BookingInput>({
+    mutationFn: async (input: BookingInput) => {
+      const supabase = getSupabaseClient()
+
+      const { error } = await supabase.from('bookings').insert([
+        {
+          client_name: input.client_name,
+          client_email: input.client_email,
+          booking_type: input.booking_type,
+          scheduled_at: input.scheduled_at,
+          notes: input.notes || null,
+          status: 'pending',
+        },
+      ])
+
+      if (error) {
+        throw new Error(error.message)
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] })
+    },
   })
 }
