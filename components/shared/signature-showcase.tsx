@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import GradientText from './gradient-text'
 import { ArrowRight, Code2, Music2 } from 'lucide-react'
 
-// Lazy load ScrollExpand
 const ScrollExpand = dynamic(() => import('./scroll-expand'), {
   ssr: false,
   loading: () => (
@@ -15,6 +14,13 @@ const ScrollExpand = dynamic(() => import('./scroll-expand'), {
   ),
 })
 
+/**
+ * Signature Showcase — ScrollExpand full-bleed section.
+ *
+ * FIX VISIBILITY: Tombol "Lihat Karya Saya" sebelumnya pakai
+ * text-foreground (putih di dark mode) di atas bg-white = TIDAK KELIHATAN.
+ * Sekarang pakai text-zinc-900 (gelap permanen) di atas putih.
+ */
 export function SignatureShowcase() {
   const IMAGE_URL =
     'https://images.unsplash.com/photo-1511376777868-611b54f68947?w=1920&q=80&auto=format&fit=crop'
@@ -38,21 +44,20 @@ export function SignatureShowcase() {
           overlayScrim={0.65}
           useWindowScroll
         >
-          {/* Overlay content */}
           <div className="max-w-2xl space-y-6 text-white">
             <div className="flex justify-center gap-2">
               <Badge
                 variant="outline"
                 className="border-white/30 bg-white/10 text-white backdrop-blur-sm"
               >
-                <Code2 className="mr-1.5 h-3.5 w-3.5" />
+                <Code2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
                 Next.js Specialist
               </Badge>
               <Badge
                 variant="outline"
                 className="border-white/30 bg-white/10 text-white backdrop-blur-sm"
               >
-                <Music2 className="mr-1.5 h-3.5 w-3.5" />
+                <Music2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
                 Blues Guitarist
               </Badge>
             </div>
@@ -80,14 +85,15 @@ export function SignatureShowcase() {
             </p>
 
             <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
+              {/* FIX: text-zinc-900 = gelap permanen di atas putih (visible di semua theme) */}
               <Button
                 size="lg"
                 asChild
-                className="h-12 bg-white px-8 text-foreground shadow-xl hover:bg-white/90"
+                className="h-12 bg-white px-8 text-zinc-900 shadow-xl hover:bg-white/90"
               >
                 <Link href="/#projects">
                   Lihat Karya Saya
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                 </Link>
               </Button>
               <Button

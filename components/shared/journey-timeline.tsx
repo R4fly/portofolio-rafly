@@ -1,50 +1,30 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { Code2, Music } from 'lucide-react'
 import { JOURNEY_COLUMNS } from '@/lib/constants/journey'
 import { TimelineItem } from './timeline-item'
 import { cn } from '@/lib/utils'
 
-// Lazy load MaskedHeading (GSAP dependency ~50KB)
-const MaskedHeading = dynamic(() => import('./masked-heading'), {
-  ssr: false,
-  loading: () => (
-    <h2 className="text-center font-sans text-3xl font-bold tracking-tight md:text-4xl">
-      Dua Ritme, Satu Perjalanan
-    </h2>
-  ),
-})
-
+/**
+ * Journey Timeline — Dual column (Programming + Guitar).
+ *
+ * FIX VISIBILITY: MaskedHeading menampilkan gambar gelap DI DALAM huruf,
+ * sehingga heading TIDAK TERBACA di dark mode. Diganti dengan heading
+ * standar yang konsisten dengan section lain (readable di semua theme).
+ */
 export function JourneyTimeline() {
   return (
-    <section className="container py-16 md:py-24" id="journey">
-      {/* Masked Heading with code/guitar imagery through text */}
-      <div className="mb-12 md:mb-16">
-        <p className="mb-3 text-center font-mono text-sm font-medium uppercase tracking-widest text-primary">
+    <section className="container px-5 py-14 md:py-24" id="journey">
+      {/* Section Header — readable & konsisten */}
+      <div className="mb-10 text-center md:mb-16">
+        <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.15em] text-primary md:text-sm">
           Journey
         </p>
-        <MaskedHeading
-          text="Dua Ritme Satu Perjalanan"
-          tag="h2"
-          mediaType="image"
-          src="https://images.unsplash.com/photo-1511376777868-611b54f68947?w=1920&q=80&auto=format&fit=crop"
-          fillScale={1.3}
-          parallax={30}
-          drift={15}
-          brightness={0.85}
-          saturation={1.1}
-          reveal="rise"
-          trigger="view"
-          duration={1.2}
-          stagger={0.1}
-          align="center"
-          weight={800}
-          tracking={-0.02}
-          lineHeight={1.05}
-          textScale={0.13}
-        />
-        <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-muted-foreground md:text-lg">
+        <h2 className="font-sans text-2xl font-bold tracking-tight text-foreground md:text-4xl">
+          Dua Ritme, <span className="text-primary">Satu</span>{' '}
+          <span className="text-secondary">Perjalanan</span>
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground md:mt-4 md:text-lg">
           Evolusi paralel antara disiplin coding dan ekspresi musik — keduanya
           saling membentuk cara saya berkarya.
         </p>
@@ -62,7 +42,7 @@ export function JourneyTimeline() {
               <div className="mb-8 flex items-center gap-3">
                 <div
                   className={cn(
-                    'flex h-12 w-12 items-center justify-center rounded-xl border',
+                    'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border',
                     isPrimary
                       ? 'border-primary/30 bg-primary/10 text-primary'
                       : 'border-secondary/30 bg-secondary/10 text-secondary'
@@ -71,7 +51,7 @@ export function JourneyTimeline() {
                   <HeaderIcon className="h-6 w-6" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="font-sans text-xl font-bold tracking-tight">
+                  <h3 className="font-sans text-xl font-bold tracking-tight text-foreground">
                     {column.label}
                   </h3>
                   <p
