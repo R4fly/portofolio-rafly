@@ -1,21 +1,15 @@
-/**
- * JSON-LD Structured Data untuk SEO rich snippets.
- * Schema.org Person markup agar Google memahami ini adalah
- * portfolio individu (bukan bisnis atau organisasi).
- *
- * Server Component — tidak butuh interaktivitas.
- */
 export function StructuredData() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: 'Rafly Baehaqi',
-    url: 'https://raflybaehaqi.my.id',
-    image: 'https://raflybaehaqi.my.id/opengraph-image',
-    jobTitle: 'Junior Full-Stack Web Developer',
+    name: 'Muhammad Rafly Baehaqi',
+    alternateName: 'Rafly Baehaqi',
+    jobTitle: 'Junior Web Developer',
     description:
-      'Junior Full-Stack Developer dan Gitaris dari Yogyakarta. Membangun aplikasi web responsif dengan Next.js, TypeScript, dan Supabase, dipadukan dengan jiwa musik blues dan rock.',
-    email: 'mailto:hello@raflybaehaqi.my.id',
+      'Junior Web Developer & Gitaris dari Yogyakarta. Spesialis Next.js, TypeScript, dan Supabase.',
+    url: 'https://raflybaehaqi.my.id',
+    email: 'mailto:muhammadraflybaehaqi@gmail.com',
+    telephone: '+6281228660551',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Yogyakarta',
@@ -23,39 +17,35 @@ export function StructuredData() {
       addressCountry: 'ID',
     },
     sameAs: [
-      'https://github.com/raflybaehaqi',
-      'https://www.npmjs.com/~raflybaehaqi',
+      'https://github.com/R4fly',
+      'https://www.npmjs.com/~baehaqirafly3',
+      'https://www.linkedin.com/in/muhammad-rafly-baehaqi-57a349352',
+      'https://www.instagram.com/rafly_baehaqi',
+      'https://www.tiktok.com/@rflyhq',
     ],
     knowsAbout: [
+      'Web Development',
       'Next.js',
       'React',
       'TypeScript',
-      'Tailwind CSS',
       'Supabase',
       'PostgreSQL',
-      'Web Development',
-      'Guitar',
+      'Tailwind CSS',
+      'Node.js',
+      'Guitar Performance',
       'Blues Music',
       'Rock Music',
     ],
-    makesOffer: [
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'Web Development Consultation',
-          description: 'Konsultasi pengembangan aplikasi web modern',
-        },
-      },
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'Guitar Collaboration Session',
-          description: 'Sesi kolaborasi musik dan gitar',
-        },
-      },
-    ],
+    alumniOf: {
+      '@type': 'EducationalOrganization',
+      name: 'SMK Negeri 2 Yogyakarta',
+      description: 'Sistem Informasi Jaringan dan Aplikasi (SIJA)',
+    },
+    performsIn: {
+      '@type': 'MusicGroup',
+      name: 'Solo Guitarist',
+      genre: ['Blues', 'Rock', 'Jazz Fusion'],
+    },
   }
 
   return (

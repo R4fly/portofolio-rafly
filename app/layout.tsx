@@ -13,7 +13,6 @@ import { StickyMobileCta } from '@/components/shared/sticky-mobile-cta'
 import { GlobalScanner } from '@/components/shared/global-scanner'
 import { StructuredData } from '@/components/shared/structured-data'
 
-// Font optimization
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -32,11 +31,11 @@ const fontMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Rafly Baehaqi — Junior Full-Stack Developer & Gitaris',
+    default: 'Muhammad Rafly Baehaqi — Junior Web Developer & Gitaris',
     template: '%s | Rafly Baehaqi',
   },
   description:
-    'Portfolio Rafly Baehaqi. Junior Full-Stack Developer & Gitaris dari Yogyakarta. Next.js, TypeScript, Supabase + blues & rock.',
+    'Portfolio Muhammad Rafly Baehaqi. Junior Web Developer & Gitaris dari Yogyakarta. Next.js, TypeScript, Supabase + blues & rock.',
   keywords: [
     'Next.js',
     'React',
@@ -47,23 +46,24 @@ export const metadata: Metadata = {
     'Yogyakarta',
     'Full-Stack',
     'TypeScript',
+    'Rafly Baehaqi',
   ],
-  authors: [{ name: 'Rafly Baehaqi' }],
-  creator: 'Rafly Baehaqi',
+  authors: [{ name: 'Muhammad Rafly Baehaqi' }],
+  creator: 'Muhammad Rafly Baehaqi',
   metadataBase: new URL('https://raflybaehaqi.my.id'),
   openGraph: {
     type: 'website',
     locale: 'id_ID',
     url: 'https://raflybaehaqi.my.id',
-    title: 'Rafly Baehaqi — Developer & Gitaris',
+    title: 'Muhammad Rafly Baehaqi — Developer & Gitaris',
     description: 'Membangun aplikasi web responsif dengan ritme kode yang presisi.',
     siteName: 'Rafly Baehaqi Portfolio',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Rafly Baehaqi — Developer & Gitaris',
+    title: 'Muhammad Rafly Baehaqi — Developer & Gitaris',
     description: 'Membangun aplikasi web responsif dengan ritme kode yang presisi.',
-    creator: '@raflybaehaqi',
+    creator: '@rflyhq',
   },
   robots: {
     index: true,
@@ -96,8 +96,9 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
-        {/* Critical CSS inlining untuk FCP optimization */}
+        {/* FIX HYDRATION: suppressHydrationWarning untuk handle browser extension injection */}
         <style
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               body {
@@ -108,7 +109,7 @@ export default function RootLayout({
                 color: hsl(var(--foreground));
               }
               .dark body {
-                background-color: hsl(222 47% 6%);
+                background-color: hsl(222 47% 7%);
                 color: hsl(210 40% 98%);
               }
               header, main, footer {
@@ -131,8 +132,8 @@ export default function RootLayout({
           }}
         />
 
-        {/* Inline theme script - di <head> untuk avoid flash, suppressHydrationWarning handle mismatch */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -151,8 +152,6 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
         <StructuredData />
-
-        {/* Global Ambient Scanner */}
         <GlobalScanner />
 
         <ThemeProvider

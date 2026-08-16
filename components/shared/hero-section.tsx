@@ -11,10 +11,10 @@ const ROTATING_ADJECTIVES = ['cepat.', 'presisi.', 'elegan.', 'modern.', 'handal
 /**
  * Hero Section — Mobile-focused (1 message + 1 CTA)
  *
- * FIX TALOS AUDIT:
- * - Primary CTA menggunakan button element (bukan link)
- * - Proper aria-labels untuk screen readers
- * - Semantic structure yang jelas
+ * FIX LIGHT MODE:
+ * - Semua text pakai text-foreground (auto-contrast di light/dark)
+ * - Hindari text-white kecuali di atas background gelap
+ * - Trust microcopy pakai text-muted-foreground (lebih visible di light mode)
  */
 export function HeroSection() {
   return (
@@ -33,7 +33,7 @@ export function HeroSection() {
           className="mb-6 border-primary/40 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur-sm"
         >
           <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
-          Full-Stack Developer & Gitaris — Yogyakarta
+          Junior Web Developer & Gitaris — Yogyakarta
         </Badge>
 
         {/* 2. Headline */}
@@ -59,14 +59,14 @@ export function HeroSection() {
           </span>
         </h1>
 
-        {/* 3. Subtitle */}
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/85 drop-shadow-sm md:text-lg">
-          Junior Full-Stack Developer spesialis Next.js, TypeScript & Supabase —
+        {/* 3. Subtitle — FIX: pakai text-foreground/90 (lebih visible di light mode) */}
+        <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/90 drop-shadow-sm md:text-lg">
+          Junior Web Developer spesialis Next.js, TypeScript & Supabase —
           sekaligus gitaris blues/rock. Lihat karya saya, atau jadwalkan
           konsultasi gratis.
         </p>
 
-        {/* 4. CTA — FIX: Gunakan button dengan onClick navigation, bukan nested link->button */}
+        {/* 4. CTA */}
         <div className="mt-10 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row">
           <SpecularButtonWrapper
             variant="primary"
@@ -78,7 +78,6 @@ export function HeroSection() {
             Lihat Proyek Saya
           </SpecularButtonWrapper>
 
-          {/* Secondary CTA: hidden di mobile untuk fokus */}
           <Button
             size="lg"
             variant="outline"
@@ -93,8 +92,8 @@ export function HeroSection() {
           </Button>
         </div>
 
-        {/* 5. Trust microcopy */}
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-foreground/85">
+        {/* 5. Trust microcopy — FIX: pakai text-muted-foreground (lebih visible di light mode) */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Zap className="h-4 w-4 text-primary" aria-hidden="true" />
             Respons &lt; 24 jam
@@ -105,7 +104,7 @@ export function HeroSection() {
           </span>
           <span className="flex items-center gap-1.5">
             <Code2 className="h-4 w-4 text-primary" aria-hidden="true" />
-            3 proyek live
+            SMK Negeri 2 Yogyakarta
           </span>
         </div>
       </div>

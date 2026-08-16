@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { GithubIcon } from './icons/github-icon'
+import { InstagramIcon } from './icons/instagram-icon'
+import { LinkedinIcon } from './icons/linkedin-icon'
 import {
   SiNextdotjs,
   SiReact,
@@ -11,9 +13,8 @@ import {
   SiSupabase,
   SiPostgresql,
 } from 'react-icons/si'
-import { Heart, Code2, Music } from 'lucide-react'
+import { Heart, Code2, Music, Mail, Phone } from 'lucide-react'
 
-// Lazy load LogoLoop untuk footer
 const LogoLoop = dynamic(() => import('./logo-loop'), {
   ssr: false,
   loading: () => (
@@ -35,7 +36,7 @@ export function Footer() {
 
   return (
     <footer className="relative z-10 mt-auto border-t border-border/40 bg-background/80 backdrop-blur-xl">
-      {/* Compact LogoLoop Marquee as trust band */}
+      {/* Compact LogoLoop Marquee */}
       <div className="border-b border-border/40 py-4">
         <div className="container">
           <p className="mb-3 text-center font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -71,12 +72,12 @@ export function Footer() {
               </span>
             </Link>
             <p className="mb-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Membangun aplikasi web modern dengan ritme kode yang presisi,
-              dipadukan dengan jiwa musik blues dan rock dari Yogyakarta.
+              Junior Web Developer & Gitaris dari Yogyakarta. Membangun aplikasi web modern
+              dengan ritme kode yang presisi, dipadukan dengan jiwa musik blues dan rock.
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <a
-                href="https://github.com/raflybaehaqi"
+                href="https://github.com/R4fly"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/40 text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
@@ -85,11 +86,40 @@ export function Footer() {
                 <GithubIcon className="h-4 w-4" />
               </a>
               <a
-                href="mailto:hello@raflybaehaqi.my.id"
+                href="https://www.linkedin.com/in/muhammad-rafly-baehaqi-57a349352"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/40 text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                aria-label="LinkedIn profile"
+              >
+                <LinkedinIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.instagram.com/rafly_baehaqi"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/40 text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                aria-label="Instagram profile"
+              >
+                <InstagramIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="mailto:muhammadraflybaehaqi@gmail.com"
                 className="flex h-9 items-center justify-center gap-2 rounded-lg border border-border/40 px-3 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
                 aria-label="Email contact"
               >
-                hello@raflybaehaqi.my.id
+                <Mail className="h-4 w-4" />
+                Email
+              </a>
+              <a
+                href="https://wa.me/6281228660551"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 items-center justify-center gap-2 rounded-lg border border-border/40 px-3 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                aria-label="WhatsApp contact"
+              >
+                <Phone className="h-4 w-4" />
+                WhatsApp
               </a>
             </div>
           </div>
@@ -158,17 +188,17 @@ export function Footer() {
         {/* Copyright Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/40 pt-8 md:flex-row">
           <p className="text-center text-xs text-muted-foreground md:text-left">
-            © {currentYear} Rafly Baehaqi. Dibuat dengan{' '}
+            © {currentYear} Muhammad Rafly Baehaqi. Dibuat dengan{' '}
             <Heart className="inline h-3 w-3 text-red-500" aria-label="love" /> di
             Yogyakarta, Indonesia.
           </p>
           <p className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Code2 className="h-3 w-3" />
+              <Code2 className="h-3 w-3" aria-hidden="true" />
               Next.js 16
             </span>
             <span className="flex items-center gap-1">
-              <Music className="h-3 w-3" />
+              <Music className="h-3 w-3" aria-hidden="true" />
               Blues & Rock
             </span>
           </p>

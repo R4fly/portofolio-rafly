@@ -17,9 +17,9 @@ const ScrollExpand = dynamic(() => import('./scroll-expand'), {
 /**
  * Signature Showcase — ScrollExpand full-bleed section.
  *
- * FIX VISIBILITY: Tombol "Lihat Karya Saya" sebelumnya pakai
- * text-foreground (putih di dark mode) di atas bg-white = TIDAK KELIHATAN.
- * Sekarang pakai text-zinc-900 (gelap permanen) di atas putih.
+ * FIX LIGHT MODE:
+ * - Tombol "Lihat Karya Saya" pakai text-zinc-900 (gelap permanen di atas putih)
+ * - Text overlay pakai text-white (selalu visible di atas gambar dengan scrim)
  */
 export function SignatureShowcase() {
   const IMAGE_URL =
@@ -30,7 +30,7 @@ export function SignatureShowcase() {
       <div className="h-[140vh] w-full">
         <ScrollExpand
           src={IMAGE_URL}
-          alt="Rafly Baehaqi — Developer & Gitaris"
+          alt="Muhammad Rafly Baehaqi — Developer & Gitaris"
           title="Code. Chord. Craft."
           scrollHint="↓ scroll to expand"
           startWidth={60}
@@ -78,7 +78,7 @@ export function SignatureShowcase() {
               </span>
             </h2>
 
-            <p className="mx-auto max-w-xl text-base leading-relaxed text-white/80 md:text-lg">
+            <p className="mx-auto max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
               Dari baris TypeScript hingga petikan gitar — setiap proyek
               dibangun dengan disiplin, intuisi, dan perhatian pada detail
               yang sama.
