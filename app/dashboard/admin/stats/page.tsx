@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
-import { BarChart3, Save, Loader2, Clock, Briefcase, Code2 } from 'lucide-react'
+import { Save, Loader2, Clock, Briefcase, Code2 } from 'lucide-react'
 import { GithubIcon } from '@/components/shared/icons/github-icon'
 
 /**
