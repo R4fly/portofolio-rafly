@@ -4,64 +4,63 @@
 
 @layer base {
   :root {
-    /* Light Mode */
-    --background: 240 10% 98%;
+    /* ===== LIGHT MODE ===== */
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 199 89% 28%;
+    /* Cyan gelap → kontras baik dengan teks putih */
+    --primary: 199 89% 30%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 38 92% 44%;
+    /* Amber gelap → kontras baik dengan teks putih */
+    --secondary: 38 92% 40%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 240 4.8% 94%;
+    /* LEBIH GELAP dari sebelumnya (46% → 34%) untuk kontras AA di light mode */
+    --muted-foreground: 240 5% 34%;
     --accent: 24 95% 46%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 199 89% 48%;
+    --border: 240 6% 86%;
+    --input: 240 6% 80%;
+    --ring: 199 89% 40%;
     --radius: 0.75rem;
-    
-    /* Custom tokens from DESIGN.md */
     --surface: 0 0% 100%;
     --surface-light: 240 4.8% 95.9%;
-    --text-primary: 240 10% 3.9%;
-    --text-secondary: 240 5% 34%;
-    --border-custom: 240 5.9% 90%;
   }
 
   .dark {
-    /* Dark Mode */
-    --background: 222.2 84% 4.9%;
+    /* ===== DARK MODE ===== */
+    /* Sedikit lebih terang dari pure-black untuk kurangi eye strain */
+    --background: 222 47% 6%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 222 44% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 44% 8%;
     --popover-foreground: 210 40% 98%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 38 92% 50%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    /* Cyan TERANG di dark mode */
+    --primary: 199 89% 55%;
+    /* FIX KRITIS: teks di atas cyan harus GELAP (rasio ~8:1), bukan putih (1.9:1) */
+    --primary-foreground: 222 47% 6%;
+    /* Amber TERANG */
+    --secondary: 38 92% 55%;
+    --secondary-foreground: 222 47% 6%;
+    --muted: 217 33% 14%;
+    /* FIX KRITIS: cerahkan 65% → 77% untuk lolos WCAG AA (~7:1) */
+    --muted-foreground: 215 16% 77%;
+    --accent: 24 95% 60%;
+    --accent-foreground: 222 47% 6%;
+    --destructive: 0 62.8% 40%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 199 89% 48%;
-    
-    /* Custom tokens from DESIGN.md */
-    --surface: 222.2 84% 4.9%;
-    --surface-light: 217.2 32.6% 17.5%;
-    --text-primary: 210 40% 98%;
-    --text-secondary: 215 20.2% 65.1%;
-    --border-custom: 217.2 32.6% 17.5%;
+    /* Border lebih visible */
+    --border: 217 25% 20%;
+    --input: 217 25% 26%;
+    --ring: 199 89% 55%;
+    --surface: 222 44% 8%;
+    --surface-light: 217 33% 14%;
   }
 }
 
@@ -69,13 +68,31 @@
   * {
     @apply border-border;
   }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  /* Base typography: 16px minimum untuk readability + accessibility */
   body {
     @apply bg-background text-foreground antialiased;
+    font-size: 16px;
+    line-height: 1.6;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Paragraf lebih lega untuk kurangi cognitive load */
+  p {
+    @apply leading-relaxed;
   }
 }
 
-/* Custom animations */
+/* Safe area untuk iPhone notch */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 12px);
+}
+
+/* Shimmer loading effect */
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;
@@ -89,14 +106,67 @@
   animation: shimmer 2s infinite linear;
   background: linear-gradient(
     to right,
-    var(--muted) 4%,
-    var(--surface-light) 25%,
-    var(--muted) 36%
+    hsl(var(--muted)) 4%,
+    hsl(var(--surface-light)) 25%,
+    hsl(var(--muted)) 36%
   );
   background-size: 1000px 100%;
 }
 
-/* Safe area for iPhone notch */
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 12px);
+/* ============================================================================
+   GLOBAL AMBIENT EFFECTS
+   ============================================================================ */
+
+/* Global Scanner Background - tampil di SEMUA halaman */
+.global-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Light mode: sangat subtle */
+  opacity: 0.08;
+  transition: opacity 0.3s ease;
+}
+
+.dark .global-scanner {
+  /* Dark mode: lebih visible tapi tetap subtle */
+  opacity: 0.18;
+}
+
+/* Jangan tampilkan scanner saat print */
+@media print {
+  .global-scanner {
+    display: none;
+  }
+}
+
+/* Kurangi opacity di mobile untuk performa */
+@media (max-width: 768px) {
+  .global-scanner {
+    opacity: 0.05;
+  }
+  .dark .global-scanner {
+    opacity: 0.12;
+  }
+}
+
+/* Reduced motion: fade out scanner */
+@media (prefers-reduced-motion: reduce) {
+  .global-scanner {
+    opacity: 0.04;
+  }
+  .dark .global-scanner {
+    opacity: 0.08;
+  }
+}
+
+/* ============================================================================
+   MAIN CONTENT Z-INDEX
+   Pastikan content selalu di atas global effects
+   ============================================================================ */
+main,
+header,
+footer {
+  position: relative;
+  z-index: 10;
 }

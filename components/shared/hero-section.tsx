@@ -3,108 +3,99 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ArrowRight, Calendar, Code2, Guitar, Sparkles } from 'lucide-react'
+import { SpecularButtonWrapper } from './specular-button-wrapper'
+import RotatingText from './rotating-text'
+import { CalendarCheck, Code2, ShieldCheck, Sparkles, Zap } from 'lucide-react'
 
+const ROTATING_ADJECTIVES = ['cepat.', 'presisi.', 'elegan.', 'modern.', 'handal.']
+
+/**
+ * Hero Section dengan Specular CTA + Rotating word.
+ *
+ * Scanner background sudah di-handle oleh GlobalScanner di layout.tsx,
+ * jadi tidak perlu render di sini lagi (menghindari duplicate WebGL context).
+ */
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      {/* Background gradient & decorative elements */}
+      {/* Background gradient glow (non-WebGL) */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-        {/* Grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-        {/* Glow orbs */}
-        <div className="absolute top-1/4 -left-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 h-96 w-96 rounded-full bg-secondary/10 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
+        <div className="absolute -left-40 top-1/3 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -right-40 top-1/2 h-[500px] w-[500px] rounded-full bg-secondary/10 blur-3xl" />
       </div>
 
-      <div className="container relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-20 md:py-32">
-        {/* Badge */}
+      <div className="relative z-10 container flex min-h-[calc(100svh-4rem)] max-w-5xl flex-col items-center justify-center py-16 text-center md:py-24">
+        {/* 1. Badge konteks */}
         <Badge
           variant="outline"
-          className="mb-6 border-primary/30 bg-primary/5 text-primary px-4 py-1.5 text-sm font-medium"
+          className="mb-6 border-primary/40 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur-sm"
         >
-          <Sparkles className="mr-2 h-3.5 w-3.5" />
-          Junior Full-Stack Developer & Gitaris
+          <Sparkles className="mr-2 h-4 w-4" />
+          Full-Stack Developer & Gitaris — Yogyakarta
         </Badge>
 
-        {/* Main headline */}
-        <h1 className="max-w-4xl text-center font-sans text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-          Membangun Aplikasi Web dengan{' '}
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Ritme Kode
-          </span>{' '}
-          yang Presisi
+        {/* 2. Headline dengan RotatingText */}
+        <h1 className="max-w-4xl font-sans text-4xl font-bold leading-[1.1] tracking-tight text-foreground drop-shadow-sm sm:text-5xl md:text-6xl">
+          Saya membangun web yang{' '}
+          <RotatingText
+            texts={ROTATING_ADJECTIVES}
+            mainClassName="inline-flex overflow-hidden px-3 py-1 mx-1 align-baseline bg-gradient-to-r from-primary to-secondary text-background rounded-lg"
+            staggerFrom="last"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '-120%', opacity: 0 }}
+            staggerDuration={0.03}
+            splitLevelClassName="overflow-hidden"
+            transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+            rotationInterval={2500}
+          />
+          <span className="block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Seperti ritme musik yang presisi.
+          </span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="mt-6 max-w-2xl text-center text-base text-muted-foreground md:text-lg leading-relaxed">
-          Memadukan ketepatan engineering dengan jiwa musik — menghasilkan aplikasi web
-          yang cepat, aman, dan indah. Dari Yogyakarta untuk dunia digital.
+        {/* 3. Subtitle */}
+        <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/85 drop-shadow-sm md:text-lg">
+          Junior Full-Stack Developer spesialis Next.js, TypeScript & Supabase —
+          sekaligus gitaris blues/rock. Lihat karya saya, atau jadwalkan
+          konsultasi gratis.
         </p>
 
-        {/* Dual CTA — Above the Fold */}
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:gap-6">
-          <Button
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 hover:-translate-y-0.5"
-            asChild
-          >
-            <Link href="/#projects">
-              <Code2 className="mr-2 h-5 w-5" />
-              Lihat Proyek Web
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-
+        {/* 4. CTA — Specular primary + outline secondary */}
+        <div className="mt-10 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row">
+          <Link href="/#projects" className="inline-block">
+            <SpecularButtonWrapper variant="primary" showArrow>
+              Lihat Proyek Saya
+            </SpecularButtonWrapper>
+          </Link>
           <Button
             size="lg"
             variant="outline"
-            className="border-secondary/50 text-secondary hover:bg-secondary/10 px-8 py-6 text-base transition-all duration-300 hover:-translate-y-0.5"
             asChild
+            className="h-12 w-full px-8 backdrop-blur-sm sm:w-auto"
           >
             <Link href="/#booking">
-              <Calendar className="mr-2 h-5 w-5" />
-              Jadwalkan Sesi
+              <CalendarCheck className="mr-2 h-5 w-5" />
+              Jadwalkan Konsultasi
             </Link>
           </Button>
         </div>
 
-        {/* Tech stack quick preview */}
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+        {/* 5. Trust microcopy */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-foreground/75">
+          <span className="flex items-center gap-1.5">
+            <Zap className="h-4 w-4 text-primary" />
+            Respons &lt; 24 jam
+          </span>
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            Konsultasi pertama gratis
+          </span>
           <span className="flex items-center gap-1.5">
             <Code2 className="h-4 w-4 text-primary" />
-            Next.js
+            3 proyek live
           </span>
-          <span className="text-border">•</span>
-          <span className="flex items-center gap-1.5">
-            <Code2 className="h-4 w-4 text-primary" />
-            TypeScript
-          </span>
-          <span className="text-border">•</span>
-          <span className="flex items-center gap-1.5">
-            <Code2 className="h-4 w-4 text-primary" />
-            Supabase
-          </span>
-          <span className="text-border">•</span>
-          <span className="flex items-center gap-1.5">
-            <Guitar className="h-4 w-4 text-secondary" />
-            Blues & Rock
-          </span>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
-          <div className="h-8 w-5 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1">
-            <div className="h-2 w-1 rounded-full bg-primary animate-pulse" />
-          </div>
         </div>
       </div>
     </section>

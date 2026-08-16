@@ -1,253 +1,194 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import WaveSurfer from 'wavesurfer.js'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatTime } from '@/lib/utils'
-import { parseWaveformData, generateSyntheticPeaks } from '@/lib/utils/waveform'
-import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
+import ElasticSlider from './elastic-slider'
+import { cn, formatTime } from '@/lib/utils'
 import type { Track } from '@/types/database'
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react'
+import { Play, Pause, Music, Volume2, VolumeX } from 'lucide-react'
 
 interface AudioPlayerProps {
   track: Track
-  isActive: boolean
-  onPlay: () => void
-  onPause: () => void
-  onFinish: () => void
 }
 
-export function AudioPlayer({
-  track,
-  isActive,
-  onPlay,
-  onPause,
-  onFinish,
-}: AudioPlayerProps) {
+export function AudioPlayer({ track }: AudioPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wavesurferRef = useRef<WaveSurfer | null>(null)
-  const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(track.duration ?? 0)
-  const [volume, setVolume] = useState(0.8)
+  const [isReady, setIsReady] = useState(false)
+  const [duration, setDuration] = useState<number>(track.duration ?? 0)
+  const [hasError, setHasError] = useState(false)
+  const [volume, setVolume] = useState<number>(75)
   const [isMuted, setIsMuted] = useState(false)
 
-  // Initialize WaveSurfer
   useEffect(() => {
     if (!containerRef.current) return
 
-    const waveformPeaks = parseWaveformData(track.waveform_data) ?? [generateSyntheticPeaks(100)]
-
     const wavesurfer = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: 'rgba(34, 211, 238, 0.3)', // primary/30
-      progressColor: '#22d3ee', // primary
+      waveColor: 'hsl(var(--muted-foreground) / 0.3)',
+      progressColor: 'hsl(var(--secondary))',
       cursorColor: 'transparent',
-      barWidth: 2,
+      barWidth: 3,
+      barRadius: 3,
       barGap: 2,
-      barRadius: 2,
       height: 60,
       normalize: true,
-      peaks: waveformPeaks,
-      duration: track.duration ?? undefined,
       url: track.audio_url,
     })
 
     wavesurferRef.current = wavesurfer
 
+    // Set initial volume
+    wavesurfer.setVolume(volume / 100)
+
     wavesurfer.on('ready', () => {
       setIsReady(true)
       setDuration(wavesurfer.getDuration())
-      wavesurfer.setVolume(volume)
-    })
-
-    wavesurfer.on('play', () => {
-      setIsPlaying(true)
-      onPlay()
-    })
-
-    wavesurfer.on('pause', () => {
-      setIsPlaying(false)
-      onPause()
-    })
-
-    wavesurfer.on('finish', () => {
-      setIsPlaying(false)
-      onFinish()
-    })
-
-    wavesurfer.on('timeupdate', (time: number) => {
-      setCurrentTime(time)
     })
 
     wavesurfer.on('error', (err: unknown) => {
-      const errorMessage = err instanceof Error
-        ? err.message
-        : err instanceof MediaError
-          ? `Media error code ${err.code}: ${err.message || 'Audio file gagal dimuat'}`
-          : typeof err === 'string'
-            ? err
-            : 'Unknown audio error'
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : err instanceof MediaError
+            ? `Media error code ${err.code}: ${err.message || 'Audio file gagal dimuat'}`
+            : typeof err === 'string'
+              ? err
+              : 'Unknown audio error'
 
-      console.error(`[AudioPlayer] Gagal memuat track "${track.title}":`, errorMessage)
-      console.warn(`[AudioPlayer] URL yang gagal: ${track.audio_url}`)
-      
-      // Fallback: tetap tampilkan card dengan synthetic waveform
+      console.warn(`[AudioPlayer] Track "${track.title}" gagal dimuat:`, errorMessage)
+
+      setHasError(true)
       setIsReady(true)
       setDuration(track.duration ?? 30)
     })
 
+    wavesurfer.on('play', () => setIsPlaying(true))
+    wavesurfer.on('pause', () => setIsPlaying(false))
+    wavesurfer.on('finish', () => setIsPlaying(false))
+
     return () => {
       wavesurfer.destroy()
-      wavesurferRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [track.id])
+  }, [track.audio_url, track.duration, track.title])
 
-  // Pause when another track is active
+  // Sync volume ke wavesurfer
   useEffect(() => {
-    if (!isActive && isPlaying && wavesurferRef.current) {
-      wavesurferRef.current.pause()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive])
+    if (!wavesurferRef.current) return
+    wavesurferRef.current.setVolume(isMuted ? 0 : volume / 100)
+  }, [volume, isMuted])
 
-  // Volume control
-  useEffect(() => {
-    if (wavesurferRef.current && isReady) {
-      wavesurferRef.current.setVolume(isMuted ? 0 : volume)
-    }
-  }, [volume, isMuted, isReady])
+  function togglePlay(): void {
+    if (!wavesurferRef.current || hasError) return
+    wavesurferRef.current.playPause()
+  }
 
-  const togglePlay = useCallback(() => {
-    if (!wavesurferRef.current || !isReady) return
-
-    if (isPlaying) {
-      wavesurferRef.current.pause()
-    } else {
-      wavesurferRef.current.play()
-    }
-  }, [isPlaying, isReady])
-
-  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value)
-    setVolume(newVolume)
-    if (newVolume > 0) setIsMuted(false)
-  }, [])
-
-  const toggleMute = useCallback(() => {
+  function toggleMute(): void {
     setIsMuted((prev) => !prev)
-  }, [])
+  }
 
   return (
-    <div
+    <Card
       className={cn(
-        'group rounded-xl border bg-card/50 p-4 md:p-5 backdrop-blur transition-all duration-300',
-        isActive
-          ? 'border-primary/50 shadow-lg shadow-primary/10'
-          : 'border-border/40 hover:border-border'
+        'border-border/40 bg-card/50 backdrop-blur transition-all duration-300',
+        'hover:border-secondary/30',
+        hasError && 'opacity-60'
       )}
     >
-      {/* Header: Title & Genre */}
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h3 className="font-sans text-base font-semibold tracking-tight text-foreground truncate">
-            {track.title}
-          </h3>
-          <p className="mt-0.5 text-xs font-mono text-muted-foreground">
-            {track.genre ?? 'Unknown Genre'}
-          </p>
-        </div>
-        {isActive && isPlaying && (
-          <div className="flex items-center gap-0.5 shrink-0">
-            <span className="h-3 w-0.5 bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
-            <span className="h-4 w-0.5 bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
-            <span className="h-2 w-0.5 bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
-            <span className="h-3 w-0.5 bg-primary animate-pulse" style={{ animationDelay: '450ms' }} />
-          </div>
-        )}
-      </div>
-
-      {/* Waveform */}
-      <div className="relative mb-4">
-        {!isReady && (
-          <div className="h-[60px] flex items-center justify-center">
-            <Skeleton className="h-full w-full" />
-          </div>
-        )}
-        <div
-          ref={containerRef}
-          className={cn(
-            'w-full cursor-pointer transition-opacity',
-            !isReady && 'opacity-0 absolute inset-0'
-          )}
-        />
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center gap-3">
-        {/* Play/Pause Button */}
-        <Button
-          size="icon"
-          variant={isActive ? 'default' : 'outline'}
-          className={cn(
-            'h-10 w-10 shrink-0 rounded-full',
-            isActive
-              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
-              : 'border-border/60 hover:border-primary hover:text-primary'
-          )}
-          onClick={togglePlay}
-          disabled={!isReady}
-          aria-label={isPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
-        >
-          {isPlaying ? (
-            <Pause className="h-4 w-4" />
-          ) : (
-            <Play className="h-4 w-4 ml-0.5" />
-          )}
-        </Button>
-
-        {/* Time Display */}
-        <div className="font-mono text-xs tabular-nums text-muted-foreground shrink-0">
-          <span className={isActive ? 'text-foreground' : ''}>
-            {formatTime(currentTime)}
-          </span>
-          <span className="mx-1">/</span>
-          <span>{formatTime(duration)}</span>
-        </div>
-
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Volume Control */}
-        <div className="hidden sm:flex items-center gap-2">
+      <CardContent className="p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          {/* Play Button */}
           <Button
             size="icon"
-            variant="ghost"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            onClick={toggleMute}
-            aria-label={isMuted ? 'Unmute' : 'Mute'}
+            variant="secondary"
+            onClick={togglePlay}
+            disabled={!isReady || hasError}
+            className="h-12 w-12 shrink-0 rounded-full bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/90"
+            aria-label={isPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
           >
-            {isMuted || volume === 0 ? (
-              <VolumeX className="h-4 w-4" />
+            {isPlaying ? (
+              <Pause className="h-5 w-5" />
             ) : (
-              <Volume2 className="h-4 w-4" />
+              <Play className="h-5 w-5 pl-0.5" />
             )}
           </Button>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={isMuted ? 0 : volume}
-            onChange={handleVolumeChange}
-            className="w-20 accent-primary cursor-pointer"
-            aria-label="Volume"
-          />
+
+          {/* Info + Waveform */}
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h3 className="truncate font-sans text-base font-semibold text-foreground">
+                  {track.title}
+                </h3>
+                {track.genre && (
+                  <Badge variant="secondary" className="font-mono text-xs">
+                    {track.genre}
+                  </Badge>
+                )}
+                {hasError && (
+                  <Badge
+                    variant="outline"
+                    className="font-mono text-xs text-destructive"
+                  >
+                    Audio unavailable
+                  </Badge>
+                )}
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">
+                {formatTime(duration)}
+              </span>
+            </div>
+
+            <div
+              ref={containerRef}
+              className={cn(
+                'h-[60px] w-full',
+                hasError && 'flex items-center justify-center bg-muted/30'
+              )}
+              aria-hidden="true"
+            >
+              {hasError && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Music className="h-4 w-4" />
+                  <span className="font-mono text-xs">
+                    Audio file tidak kompatibel dengan browser
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Volume Control — ElasticSlider */}
+          <div className="flex shrink-0 items-center gap-2 md:w-48">
+            <button
+              type="button"
+              onClick={toggleMute}
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted || volume === 0 ? (
+                <VolumeX className="h-5 w-5" />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </button>
+            <ElasticSlider
+              defaultValue={volume}
+              startingValue={0}
+              maxValue={100}
+              onChange={(v) => setVolume(v)}
+              leftIcon={<span className="text-xs text-muted-foreground">−</span>}
+              rightIcon={<span className="text-xs text-muted-foreground">+</span>}
+              className="w-full"
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -1,111 +1,202 @@
 'use client'
 
-import { useState } from 'react'
+import Image from 'next/image'
 import { useProjects } from '@/lib/queries/projects'
-import { ProjectCard } from './project-card'
-import { ProjectDialog } from './project-dialog'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Project } from '@/types/database'
-import { FolderOpen } from 'lucide-react'
+import { SectionHeader } from './section-header'
+import { GithubIcon } from './icons/github-icon'
+import BorderGlow from './border-glow'
+import { ExternalLink, FolderKanban, Star } from 'lucide-react'
 
-/**
- * Grid layout untuk semua project portofolio.
- * Menangani loading state, empty state, dan dialog detail.
- */
 export function ProjectsGrid() {
   const { data: projects, isLoading, isError } = useProjects()
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
-
-  const handleOpenDialog = (project: Project): void => {
-    setSelectedProject(project)
-    setDialogOpen(true)
-  }
-
-  const handleCloseDialog = (open: boolean): void => {
-    setDialogOpen(open)
-    if (!open) {
-      // Delay reset selectedProject agar animasi close dialog selesai
-      setTimeout(() => setSelectedProject(null), 200)
-    }
-  }
-
-  if (isError) {
-    return (
-      <div className="container py-16 text-center">
-        <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Gagal Memuat Proyek</h3>
-        <p className="text-sm text-muted-foreground">
-          Terjadi kesalahan saat mengambil data proyek. Silakan refresh halaman.
-        </p>
-      </div>
-    )
-  }
 
   return (
     <section className="container py-16 md:py-24" id="projects">
-      {/* Section Header */}
-      <div className="mb-12 text-center">
-        <h2 className="mb-3 font-sans text-3xl font-bold tracking-tight md:text-4xl">
-          Proyek <span className="text-primary">Unggulan</span>
-        </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
-          Koleksi aplikasi web yang saya bangun dengan standar engineering tinggi,
-          dari SaaS hingga tools kreatif.
-        </p>
-      </div>
+      <SectionHeader
+        eyebrow="Selected Work"
+        title={
+          <>
+            Proyek <span className="text-primary">Unggulan</span>
+          </>
+        }
+        description="Koleksi proyek web terbaik yang saya bangun — dari SaaS hingga eksperimen teknis."
+      />
 
       {/* Loading State */}
       {isLoading && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
-              <Skeleton className="aspect-video w-full" />
-              <div className="p-5 space-y-3">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
-                <div className="flex gap-2 pt-2">
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-5 w-20" />
-                  <Skeleton className="h-5 w-14" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="border-border/40 bg-card/50">
+              <CardContent className="p-0">
+                <Skeleton className="aspect-video w-full rounded-t-lg" />
+                <div className="space-y-3 p-5">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
+      )}
+
+      {/* Error State */}
+      {isError && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="pt-6">
+            <p className="text-center text-sm text-destructive">
+              Gagal memuat proyek. Silakan refresh halaman.
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Empty State */}
       {!isLoading && projects && projects.length === 0 && (
-        <div className="text-center py-16">
-          <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Belum Ada Proyek</h3>
-          <p className="text-sm text-muted-foreground">
-            Proyek portofolio akan segera ditambahkan. Stay tuned!
-          </p>
-        </div>
+        <Card className="border-dashed border-border/40 bg-card/30">
+          <CardContent className="flex flex-col items-center py-16 text-center">
+            <FolderKanban className="mb-3 h-12 w-12 text-muted-foreground" />
+            <p className="font-medium">Belum ada proyek</p>
+            <p className="text-sm text-muted-foreground">
+              Proyek akan muncul di sini setelah ditambahkan.
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Projects Grid */}
       {!isLoading && projects && projects.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onOpenDialog={handleOpenDialog}
-            />
-          ))}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => {
+            const ProjectCard = (
+              <Card
+                key={project.id}
+                className="group h-full overflow-hidden border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+              >
+                {/* Thumbnail */}
+                <div className="relative aspect-video overflow-hidden bg-muted">
+                  {project.thumbnail_url ? (
+                    <Image
+                      src={project.thumbnail_url}
+                      alt={`Screenshot ${project.title}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
+                      <FolderKanban className="h-12 w-12 text-muted-foreground/50" />
+                    </div>
+                  )}
+                  {project.is_featured && (
+                    <Badge className="absolute right-3 top-3 bg-secondary text-secondary-foreground">
+                      <Star className="mr-1 h-3 w-3" />
+                      Featured
+                    </Badge>
+                  )}
+                </div>
+
+                <CardContent className="p-5">
+                  <div className="mb-3">
+                    <h3 className="mb-1 font-sans text-lg font-bold tracking-tight text-foreground">
+                      {project.title}
+                    </h3>
+                    <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                      {project.description || 'Tidak ada deskripsi.'}
+                    </p>
+                  </div>
+
+                  <div className="mb-4 flex flex-wrap gap-1.5">
+                    {project.tech_stack.slice(0, 4).map((tech) => (
+                      <Badge
+                        key={tech}
+                        variant="secondary"
+                        className="font-mono text-xs"
+                      >
+                        {tech}
+                      </Badge>
+                    ))}
+                    {project.tech_stack.length > 4 && (
+                      <Badge variant="outline" className="font-mono text-xs">
+                        +{project.tech_stack.length - 4}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 border-t border-border/40 pt-4">
+                    {project.live_url && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        asChild
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        <a
+                          href={project.live_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="mr-2 h-3.5 w-3.5" />
+                          Live Demo
+                        </a>
+                      </Button>
+                    )}
+                    {project.repository_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className={project.live_url ? 'flex-1' : 'w-full'}
+                      >
+                        <a
+                          href={project.repository_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <GithubIcon className="mr-2 h-3.5 w-3.5" />
+                          Source
+                        </a>
+                      </Button>
+                    )}
+                    {!project.live_url && !project.repository_url && (
+                      <p className="text-xs text-muted-foreground">
+                        Link tidak tersedia
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+
+            // Wrap featured projects dengan BorderGlow
+            if (project.is_featured) {
+              return (
+                <BorderGlow
+                  key={project.id}
+                  borderRadius={20}
+                  glowColor="199 89 55"
+                  glowIntensity={1.2}
+                  glowRadius={30}
+                  colors={['#22d3ee', '#f59e0b', '#a855f7']}
+                  className="h-full"
+                >
+                  {ProjectCard}
+                </BorderGlow>
+              )
+            }
+
+            return ProjectCard
+          })}
         </div>
       )}
-
-      {/* Dialog */}
-      <ProjectDialog
-        project={selectedProject}
-        open={dialogOpen}
-        onOpenChange={handleCloseDialog}
-      />
     </section>
   )
 }

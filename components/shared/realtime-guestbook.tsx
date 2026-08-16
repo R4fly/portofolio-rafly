@@ -21,12 +21,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { SectionHeader } from './section-header'
 import { formatDate, cn } from '@/lib/utils'
-import { Loader2, Send, MessageCircle, Radio } from 'lucide-react'
+import { Loader2, Send, MessageCircle } from 'lucide-react'
 
 /**
  * Sub-component: Card untuk setiap pesan guestbook.
- * Co-located karena hanya dipakai di RealtimeGuestbook.
  */
 function GuestbookMessageCard({ entry }: { entry: GuestbookEntry }) {
   const initials = entry.name
@@ -121,20 +121,20 @@ export function RealtimeGuestbook() {
 
   return (
     <section className="container py-16 md:py-24" id="guestbook">
-      {/* Section Header */}
-      <div className="mb-12 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5">
-          <Radio className="h-4 w-4 animate-pulse text-primary" />
-          <span className="text-sm font-medium text-primary">Live Realtime</span>
-        </div>
-        <h2 className="mb-3 font-sans text-3xl font-bold tracking-tight md:text-4xl">
-          Buku <span className="text-primary">Tamu</span>
-        </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
-          Tinggalkan jejak Anda. Setiap pesan muncul secara realtime di layar
-          semua pengunjung tanpa perlu reload.
-        </p>
-      </div>
+      <SectionHeader
+        eyebrow={
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+            Live Realtime
+          </span>
+        }
+        title={
+          <>
+            Buku <span className="text-primary">Tamu</span>
+          </>
+        }
+        description="Tinggalkan jejak Anda. Setiap pesan muncul secara realtime di layar semua pengunjung tanpa perlu reload."
+      />
 
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_1.2fr]">
         {/* Form Submit */}

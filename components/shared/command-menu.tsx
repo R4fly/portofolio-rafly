@@ -12,6 +12,7 @@ import {
 } from '@/lib/constants/commands'
 import { FolderKanban, Music, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import GlassSurface from './glass-surface'
 
 interface FlattenedItem {
   id: string
@@ -32,11 +33,9 @@ export function CommandMenu() {
   const { data: projects = [] } = useProjects()
   const { data: tracks = [] } = useTracks()
 
-  // Flatten semua items untuk keyboard navigation
   const allItems = useMemo<FlattenedItem[]>(() => {
     const items: FlattenedItem[] = []
 
-    // Static commands
     STATIC_COMMANDS.forEach((group) => {
       group.items.forEach((item) => {
         items.push({
@@ -50,7 +49,6 @@ export function CommandMenu() {
       })
     })
 
-    // Dynamic projects
     const lowerQuery = query.toLowerCase()
     if (lowerQuery) {
       projects
@@ -94,36 +92,30 @@ export function CommandMenu() {
     return items
   }, [query, projects, tracks])
 
-  // Reset selectedIndex saat query berubah
   useEffect(() => {
     setSelectedIndex(0)
   }, [query])
 
-  // Focus input saat dialog terbuka
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus()
     }
   }, [isOpen])
 
-  // Scroll selected item into view
   useEffect(() => {
     if (!listRef.current || selectedIndex < 0) return
-
     const selectedElement = listRef.current.children[selectedIndex] as HTMLElement
     if (selectedElement) {
       selectedElement.scrollIntoView({ block: 'nearest' })
     }
   }, [selectedIndex])
 
-  // Handle navigation
   function handleSelect(item: FlattenedItem): void {
     if (!item.href) return
     close()
     router.push(item.href)
   }
 
-  // Handle keyboard navigation
   function handleKeyDown(e: React.KeyboardEvent): void {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -152,89 +144,101 @@ export function CommandMenu() {
         onClick={close}
       />
 
-      {/* Dialog */}
+      {/* Dialog — wrapped dengan GlassSurface untuk efek frosted glass */}
       <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-[48%]">
-        <div className="rounded-xl border border-border bg-background p-0 shadow-2xl">
-          {/* Search Input */}
-          <div className="flex items-center border-b border-border px-3">
-            <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder={SEARCH_PLACEHOLDER}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
+        <GlassSurface
+          width="100%"
+          height="auto"
+          borderRadius={20}
+          backgroundOpacity={0.15}
+          saturation={1.5}
+          blur={20}
+          displace={0}
+          distortionScale={-80}
+          className="overflow-hidden shadow-2xl"
+        >
+          <div className="flex w-full flex-col">
+            {/* Search Input */}
+            <div className="flex items-center border-b border-white/10 px-3">
+              <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder={SEARCH_PLACEHOLDER}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
 
-          {/* Results List */}
-          <div
-            ref={listRef}
-            className="max-h-[400px] overflow-y-auto overflow-x-hidden p-2"
-          >
-            {allItems.length === 0 ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                {NO_RESULTS_TEXT}
-              </div>
-            ) : (
-              allItems.map((item, index) => {
-                const Icon = item.icon
-                const isSelected = index === selectedIndex
+            {/* Results List */}
+            <div
+              ref={listRef}
+              className="max-h-[400px] overflow-y-auto overflow-x-hidden p-2"
+            >
+              {allItems.length === 0 ? (
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  {NO_RESULTS_TEXT}
+                </div>
+              ) : (
+                allItems.map((item, index) => {
+                  const Icon = item.icon
+                  const isSelected = index === selectedIndex
 
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSelect(item)}
-                    onMouseEnter={() => setSelectedIndex(index)}
-                    className={cn(
-                      'relative flex w-full cursor-pointer select-none items-center rounded-lg px-3 py-2.5 text-sm outline-none transition-colors',
-                      isSelected
-                        ? 'bg-accent text-accent-foreground'
-                        : 'hover:bg-accent/50'
-                    )}
-                  >
-                    <Icon className="mr-3 h-4 w-4 shrink-0 text-primary" />
-                    <div className="flex flex-1 flex-col text-left">
-                      <span className="font-medium">{item.label}</span>
-                      {item.description && (
-                        <span className="text-xs text-muted-foreground">
-                          {item.description}
-                        </span>
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => handleSelect(item)}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                      className={cn(
+                        'relative flex w-full cursor-pointer select-none items-center rounded-lg px-3 py-2.5 text-sm outline-none transition-colors',
+                        isSelected
+                          ? 'bg-white/10 text-foreground'
+                          : 'hover:bg-white/5'
                       )}
-                    </div>
-                  </button>
-                )
-              })
-            )}
-          </div>
+                    >
+                      <Icon className="mr-3 h-4 w-4 shrink-0 text-primary" />
+                      <div className="flex flex-1 flex-col text-left">
+                        <span className="font-medium">{item.label}</span>
+                        {item.description && (
+                          <span className="text-xs text-muted-foreground">
+                            {item.description}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  )
+                })
+              )}
+            </div>
 
-          {/* Footer Hint */}
-          <div className="border-t border-border px-3 py-2">
-            <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
-                  ↑↓
-                </kbd>
-                navigasi
-              </span>
-              <span className="flex items-center gap-1">
-                <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
-                  ↵
-                </kbd>
-                pilih
-              </span>
-              <span className="flex items-center gap-1">
-                <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
-                  esc
-                </kbd>
-                tutup
-              </span>
+            {/* Footer Hint */}
+            <div className="border-t border-white/10 px-3 py-2">
+              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
+                    ↑↓
+                  </kbd>
+                  navigasi
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
+                    ↵
+                  </kbd>
+                  pilih
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
+                    esc
+                  </kbd>
+                  tutup
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        </GlassSurface>
       </div>
     </>
   )

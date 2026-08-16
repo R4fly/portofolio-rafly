@@ -1,70 +1,177 @@
-import Link from "next/link"
-import { ExternalLink, Mail, MapPin, MessageCircle } from "lucide-react"
+'use client'
+
+import Link from 'next/link'
+import dynamic from 'next/dynamic'
+import { GithubIcon } from './icons/github-icon'
+import {
+  SiNextdotjs,
+  SiReact,
+  SiTypescript,
+  SiTailwindcss,
+  SiSupabase,
+  SiPostgresql,
+} from 'react-icons/si'
+import { Heart, Code2, Music } from 'lucide-react'
+
+// Lazy load LogoLoop untuk footer
+const LogoLoop = dynamic(() => import('./logo-loop'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-8 animate-pulse rounded bg-muted/40" aria-busy="true" />
+  ),
+})
+
+const techLogos = [
+  { node: <SiNextdotjs />, title: 'Next.js', href: 'https://nextjs.org', ariaLabel: 'Next.js' },
+  { node: <SiReact />, title: 'React', href: 'https://react.dev', ariaLabel: 'React' },
+  { node: <SiTypescript />, title: 'TypeScript', href: 'https://typescriptlang.org', ariaLabel: 'TypeScript' },
+  { node: <SiTailwindcss />, title: 'Tailwind CSS', href: 'https://tailwindcss.com', ariaLabel: 'Tailwind CSS' },
+  { node: <SiSupabase />, title: 'Supabase', href: 'https://supabase.com', ariaLabel: 'Supabase' },
+  { node: <SiPostgresql />, title: 'PostgreSQL', href: 'https://postgresql.org', ariaLabel: 'PostgreSQL' },
+]
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container max-w-screen-2xl py-12 md:py-16 lg:py-20">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
-          {/* Brand & Bio */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold font-sans tracking-tight">
-              Rafly<span className="text-primary">.dev</span>
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Junior Full-Stack Developer & Gitaris. Membangun aplikasi web presisi dengan ritme kode yang clean, sambil menjaga soul musik tetap hidup.
+    <footer className="relative z-10 mt-auto border-t border-border/40 bg-background/80 backdrop-blur-xl">
+      {/* Compact LogoLoop Marquee as trust band */}
+      <div className="border-b border-border/40 py-4">
+        <div className="container">
+          <p className="mb-3 text-center font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Built with
+          </p>
+          <div className="relative h-8 w-full overflow-hidden">
+            <LogoLoop
+              logos={techLogos}
+              speed={50}
+              direction="left"
+              logoHeight={24}
+              gap={48}
+              hoverSpeed={0}
+              fadeOut
+              scaleOnHover={false}
+              ariaLabel="Technology stack used to build this site"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Footer Content */}
+      <div className="container py-12 md:py-16">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          {/* Brand Column */}
+          <div className="md:col-span-2">
+            <Link href="/" className="mb-4 inline-flex items-center space-x-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary font-mono font-bold text-white">
+                R
+              </div>
+              <span className="font-sans text-xl font-bold tracking-tight">
+                Rafly<span className="text-primary">.dev</span>
+              </span>
+            </Link>
+            <p className="mb-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              Membangun aplikasi web modern dengan ritme kode yang presisi,
+              dipadukan dengan jiwa musik blues dan rock dari Yogyakarta.
             </p>
-            <div className="flex gap-3">
-              <Link href="https://github.com/raflybaehaqi" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <ExternalLink className="h-5 w-5" />
-              </Link>
-              <Link href="mailto:hello@raflybaehaqi.my.id" className="text-muted-foreground hover:text-primary transition-colors">
-                <Mail className="h-5 w-5" />
-              </Link>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/raflybaehaqi"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/40 text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                aria-label="GitHub profile"
+              >
+                <GithubIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="mailto:hello@raflybaehaqi.my.id"
+                className="flex h-9 items-center justify-center gap-2 rounded-lg border border-border/40 px-3 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                aria-label="Email contact"
+              >
+                hello@raflybaehaqi.my.id
+              </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Navigasi</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link href="/#projects" className="text-muted-foreground hover:text-primary transition-colors">Proyek Web</Link></li>
-              <li><Link href="/#audio" className="text-muted-foreground hover:text-primary transition-colors">Audio Showcase</Link></li>
-              <li><Link href="/#guestbook" className="text-muted-foreground hover:text-primary transition-colors">Buku Tamu</Link></li>
-              <li><Link href="/#booking" className="text-muted-foreground hover:text-primary transition-colors">Jadwalkan Sesi</Link></li>
-            </ul>
+          <div>
+            <h3 className="mb-4 font-sans text-sm font-semibold text-foreground">
+              Navigate
+            </h3>
+            <nav className="flex flex-col gap-2">
+              <Link
+                href="/#projects"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Projects
+              </Link>
+              <Link
+                href="/#audio"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Audio Showcase
+              </Link>
+              <Link
+                href="/#journey"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Journey
+              </Link>
+              <Link
+                href="/#guestbook"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Guestbook
+              </Link>
+              <Link
+                href="/#booking"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Book Session
+              </Link>
+            </nav>
           </div>
 
-          {/* Contact Info */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Kontak</h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>Yogyakarta, Indonesia</span>
-              </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4 text-primary" />
-                <span>hello@raflybaehaqi.my.id</span>
-              </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <MessageCircle className="h-4 w-4 text-primary" />
-                <span>WhatsApp (On Request)</span>
-              </li>
-            </ul>
+          {/* Legal */}
+          <div>
+            <h3 className="mb-4 font-sans text-sm font-semibold text-foreground">
+              Legal
+            </h3>
+            <nav className="flex flex-col gap-2">
+              <Link
+                href="/privacy-policy"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Terms of Service
+              </Link>
+            </nav>
           </div>
         </div>
 
-        <div className="mt-12 border-t border-border/40 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} Rafly Baehaqi. All rights reserved. Built with Next.js & Supabase.
+        {/* Copyright Bar */}
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/40 pt-8 md:flex-row">
+          <p className="text-center text-xs text-muted-foreground md:text-left">
+            © {currentYear} Rafly Baehaqi. Dibuat dengan{' '}
+            <Heart className="inline h-3 w-3 text-red-500" aria-label="love" /> di
+            Yogyakarta, Indonesia.
           </p>
-          <div className="flex gap-6 text-xs text-muted-foreground">
-            <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-          </div>
+          <p className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Code2 className="h-3 w-3" />
+              Next.js 16
+            </span>
+            <span className="flex items-center gap-1">
+              <Music className="h-3 w-3" />
+              Blues & Rock
+            </span>
+          </p>
         </div>
       </div>
     </footer>

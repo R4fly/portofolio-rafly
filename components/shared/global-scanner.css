@@ -1,0 +1,42 @@
+/* Global Scanner Background */
+.global-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Light mode: sangat subtle */
+  opacity: 0.08;
+  transition: opacity 0.3s ease;
+}
+
+.dark .global-scanner {
+  /* Dark mode: lebih visible tapi tetap subtle */
+  opacity: 0.18;
+}
+
+/* Jangan tampilkan scanner saat print */
+@media print {
+  .global-scanner {
+    display: none;
+  }
+}
+
+/* Kurangi opacity di mobile untuk performa */
+@media (max-width: 768px) {
+  .global-scanner {
+    opacity: 0.05;
+  }
+  .dark .global-scanner {
+    opacity: 0.12;
+  }
+}
+
+/* Reduced motion: fade out scanner */
+@media (prefers-reduced-motion: reduce) {
+  .global-scanner {
+    opacity: 0.04;
+  }
+  .dark .global-scanner {
+    opacity: 0.08;
+  }
+}

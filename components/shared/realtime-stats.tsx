@@ -1,68 +1,107 @@
 'use client'
 
-import { Clock, Briefcase, Code2 } from 'lucide-react'
-import { GithubIcon } from '@/components/shared/icons/github-icon'
-import { StatsCard } from './stats-card'
 import { useLiveStats } from '@/lib/queries/stats'
-import { useRealtimeStats } from '@/lib/hooks/use-realtime-stats'
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { SectionHeader } from './section-header'
+import { GithubIcon } from './icons/github-icon'
+import CountUp from './count-up'
+import { Clock, Briefcase, Code2 } from 'lucide-react'
+
+const STATS_CONFIG = [
+  {
+    key: 'github_commits',
+    label: 'GitHub Commits',
+    description: 'Total commit di repositori',
+    icon: GithubIcon,
+    color: 'text-primary' as const,
+    bgColor: 'bg-primary/10' as const,
+  },
+  {
+    key: 'hours_practiced',
+    label: 'Jam Latihan',
+    description: 'Latihan gitar kumulatif',
+    icon: Clock,
+    color: 'text-secondary' as const,
+    bgColor: 'bg-secondary/10' as const,
+  },
+  {
+    key: 'projects_active',
+    label: 'Proyek Aktif',
+    description: 'Sedang dikerjakan',
+    icon: Briefcase,
+    color: 'text-primary' as const,
+    bgColor: 'bg-primary/10' as const,
+  },
+  {
+    key: 'lines_of_code',
+    label: 'Baris Kode',
+    description: 'Ditulis tahun ini',
+    icon: Code2,
+    color: 'text-secondary' as const,
+    bgColor: 'bg-secondary/10' as const,
+  },
+]
 
 export function RealtimeStats() {
-  const { data: stats, isLoading, isError } = useLiveStats()
-
-  // Subscribe ke realtime updates
-  useRealtimeStats()
-
-  if (isError) {
-    return (
-      <div className="container py-12">
-        <div className="text-center text-sm text-muted-foreground">
-          Gagal memuat statistik. Coba refresh halaman.
-        </div>
-      </div>
-    )
-  }
+  const { data: stats, isLoading } = useLiveStats()
 
   return (
-    <section className="container py-12 md:py-16" id="stats">
-      <div className="mb-8 text-center">
-        <h2 className="mb-2 font-sans text-2xl font-bold tracking-tight md:text-3xl">
-          Live <span className="text-primary">Stats</span>
-        </h2>
-        <p className="mx-auto max-w-xl text-sm text-muted-foreground md:text-base">
-          Metrik kredibilitas yang diperbarui secara realtime langsung dari database
-        </p>
-      </div>
+    <section className="container py-16 md:py-24" id="stats">
+      <SectionHeader
+        eyebrow="Live Stats"
+        title={
+          <>
+            Angka yang <span className="text-primary">Terus Bergerak</span>
+          </>
+        }
+        description="Metrik realtime dari aktivitas coding dan latihan gitar saya."
+      />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
-        <StatsCard
-          label="GitHub Commits"
-          value={stats?.github_commits ?? 0}
-          icon={GithubIcon}
-          isLoading={isLoading}
-          accentColor="primary"
-        />
-        <StatsCard
-          label="Jam Latihan Gitar"
-          value={stats?.hours_practiced ?? 0}
-          icon={Clock}
-          suffix="hrs"
-          isLoading={isLoading}
-          accentColor="secondary"
-        />
-        <StatsCard
-          label="Proyek Aktif"
-          value={stats?.projects_active ?? 0}
-          icon={Briefcase}
-          isLoading={isLoading}
-          accentColor="primary"
-        />
-        <StatsCard
-          label="Baris Kode"
-          value={stats?.lines_of_code ?? 0}
-          icon={Code2}
-          isLoading={isLoading}
-          accentColor="secondary"
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {STATS_CONFIG.map((stat) => {
+          const Icon = stat.icon
+          const value = stats?.[stat.key as keyof typeof stats] ?? 0
+
+          return (
+            <Card
+              key={stat.key}
+              className="group border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+            >
+              <CardContent className="pt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <div
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.bgColor}`}
+                  >
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  {isLoading ? (
+                    <Skeleton className="h-9 w-20" />
+                  ) : (
+                    <p className="font-mono text-3xl font-bold tabular-nums text-foreground">
+                      <CountUp
+                        from={0}
+                        to={typeof value === 'number' ? value : parseInt(value, 10) || 0}
+                        duration={2.2}
+                        separator=","
+                        direction="up"
+                        startWhen
+                      />
+                    </p>
+                  )}
+                  <p className="text-sm font-semibold text-foreground">
+                    {stat.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {stat.description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     </section>
   )
