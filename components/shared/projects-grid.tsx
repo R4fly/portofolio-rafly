@@ -15,7 +15,7 @@ export function ProjectsGrid() {
   const { data: projects, isLoading, isError } = useProjects()
 
   return (
-    <section className="container py-16 md:py-24" id="projects">
+    <section className="container px-5 py-14 md:py-24" id="projects">
       <SectionHeader
         eyebrow="Selected Work"
         title={
@@ -28,7 +28,7 @@ export function ProjectsGrid() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="border-border/40 bg-card/50">
               <CardContent className="p-0">
@@ -42,8 +42,8 @@ export function ProjectsGrid() {
                     <Skeleton className="h-6 w-16" />
                   </div>
                   <div className="flex gap-2 border-t border-border/40 pt-4">
-                    <Skeleton className="h-9 flex-1" />
-                    <Skeleton className="h-9 flex-1" />
+                    <Skeleton className="h-11 flex-1" />
+                    <Skeleton className="h-11 flex-1" />
                   </div>
                 </div>
               </CardContent>
@@ -78,14 +78,14 @@ export function ProjectsGrid() {
 
       {/* Projects Grid */}
       {!isLoading && projects && projects.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {projects.map((project) => {
             const ProjectCard = (
               <Card
                 key={project.id}
                 className="group flex h-full flex-col overflow-hidden border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
               >
-                {/* Thumbnail - fixed aspect ratio dengan next/image optimization */}
+                {/* Thumbnail */}
                 <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-muted">
                   {project.thumbnail_url ? (
                     <Image
@@ -111,19 +111,19 @@ export function ProjectsGrid() {
                   )}
                 </div>
 
-                {/* Content - flex-grow to fill space */}
+                {/* Content */}
                 <CardContent className="flex flex-1 flex-col p-5">
                   <div className="mb-3">
-                    <h3 className="mb-1 line-clamp-1 font-sans text-lg font-bold tracking-tight text-foreground">
+                    <h3 className="mb-1.5 line-clamp-1 font-sans text-lg font-bold tracking-tight text-foreground md:text-xl">
                       {project.title}
                     </h3>
-                    <p className="line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-muted-foreground">
+                    <p className="line-clamp-2 min-h-[3rem] text-sm leading-relaxed text-muted-foreground md:text-base">
                       {project.description || 'Tidak ada deskripsi.'}
                     </p>
                   </div>
 
-                  {/* Tech Stack - fixed height */}
-                  <div className="mb-4 flex min-h-[2rem] flex-wrap gap-1.5">
+                  {/* Tech Stack */}
+                  <div className="mb-4 flex min-h-[2.5rem] flex-wrap gap-1.5">
                     {project.tech_stack.slice(0, 4).map((tech) => (
                       <Badge
                         key={tech}
@@ -140,12 +140,12 @@ export function ProjectsGrid() {
                     )}
                   </div>
 
-                  {/* Action Links - pushed to bottom */}
+                  {/* Action Links */}
                   <div className="mt-auto flex gap-2 border-t border-border/40 pt-4">
                     {project.live_url && (
                       <Button
                         variant="default"
-                        size="sm"
+                        size="lg"
                         asChild
                         className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                       >
@@ -154,7 +154,7 @@ export function ProjectsGrid() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <ExternalLink className="mr-2 h-3.5 w-3.5" />
+                          <ExternalLink className="mr-2 h-4 w-4" />
                           Live Demo
                         </a>
                       </Button>
@@ -162,7 +162,7 @@ export function ProjectsGrid() {
                     {project.repository_url && (
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="lg"
                         asChild
                         className={project.live_url ? 'flex-1' : 'w-full'}
                       >
@@ -171,7 +171,7 @@ export function ProjectsGrid() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <GithubIcon className="mr-2 h-3.5 w-3.5" />
+                          <GithubIcon className="mr-2 h-4 w-4" />
                           Source
                         </a>
                       </Button>
@@ -186,7 +186,6 @@ export function ProjectsGrid() {
               </Card>
             )
 
-            // Wrap featured projects dengan BorderGlow
             if (project.is_featured) {
               return (
                 <BorderGlow

@@ -10,22 +10,26 @@ import { CalendarCheck, Code2, ShieldCheck, Sparkles, Zap } from 'lucide-react'
 const ROTATING_ADJECTIVES = ['cepat.', 'presisi.', 'elegan.', 'modern.', 'handal.']
 
 /**
- * Hero Section dengan Specular CTA + Rotating word.
+ * Hero Section — Mobile-focused (1 message + 1 CTA)
  *
- * Scanner background sudah di-handle oleh GlobalScanner di layout.tsx,
- * jadi tidak perlu render di sini lagi (menghindari duplicate WebGL context).
+ * FIX UI/UX AUDIT:
+ * - Mobile max-width: 327px content (via container)
+ * - H1 mobile: 36px dengan line-height 1.1
+ * - Primary button min height 48px
+ * - Trust microcopy lebih compact di mobile
+ * - Secondary CTA di-hide di mobile untuk fokus
  */
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      {/* Background gradient glow (non-WebGL) */}
+      {/* Background gradient glow */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
         <div className="absolute -left-40 top-1/3 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -right-40 top-1/2 h-[500px] w-[500px] rounded-full bg-secondary/10 blur-3xl" />
       </div>
 
-      <div className="relative z-10 container flex min-h-[calc(100svh-4rem)] max-w-5xl flex-col items-center justify-center py-16 text-center md:py-24">
+      <div className="relative z-10 container flex min-h-[calc(100svh-4rem)] max-w-5xl flex-col items-center justify-center px-5 py-12 text-center md:py-24">
         {/* 1. Badge konteks */}
         <Badge
           variant="outline"
@@ -35,8 +39,8 @@ export function HeroSection() {
           Full-Stack Developer & Gitaris — Yogyakarta
         </Badge>
 
-        {/* 2. Headline dengan RotatingText */}
-        <h1 className="max-w-4xl font-sans text-4xl font-bold leading-[1.1] tracking-tight text-foreground drop-shadow-sm sm:text-5xl md:text-6xl">
+        {/* 2. Headline — Mobile: 36px, Desktop: 60px */}
+        <h1 className="max-w-4xl font-sans text-[2.25rem] font-bold leading-[1.1] tracking-tight text-foreground drop-shadow-sm sm:text-5xl md:text-6xl">
           Saya membangun web yang{' '}
           <RotatingText
             texts={ROTATING_ADJECTIVES}
@@ -62,18 +66,19 @@ export function HeroSection() {
           konsultasi gratis.
         </p>
 
-        {/* 4. CTA — Specular primary + outline secondary */}
+        {/* 4. CTA — Primary dominan, secondary di-hide di mobile untuk fokus */}
         <div className="mt-10 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row">
-          <Link href="/#projects" className="inline-block">
+          <Link href="/#projects" className="inline-block w-full sm:w-auto">
             <SpecularButtonWrapper variant="primary" showArrow>
               Lihat Proyek Saya
             </SpecularButtonWrapper>
           </Link>
+          {/* Secondary CTA: hidden di mobile untuk fokus ke primary */}
           <Button
             size="lg"
             variant="outline"
             asChild
-            className="h-12 w-full px-8 backdrop-blur-sm sm:w-auto"
+            className="hidden h-12 px-8 backdrop-blur-sm sm:inline-flex"
           >
             <Link href="/#booking">
               <CalendarCheck className="mr-2 h-5 w-5" />
@@ -82,15 +87,15 @@ export function HeroSection() {
           </Button>
         </div>
 
-        {/* 5. Trust microcopy */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-foreground/75">
+        {/* 5. Trust microcopy — Lebih compact di mobile, lebih visible (kontras AA) */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-foreground/85">
           <span className="flex items-center gap-1.5">
             <Zap className="h-4 w-4 text-primary" />
             Respons &lt; 24 jam
           </span>
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            Konsultasi pertama gratis
+            Konsultasi gratis
           </span>
           <span className="flex items-center gap-1.5">
             <Code2 className="h-4 w-4 text-primary" />

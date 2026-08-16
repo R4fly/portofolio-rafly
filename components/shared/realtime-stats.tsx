@@ -47,7 +47,7 @@ export function RealtimeStats() {
   const { data: stats, isLoading } = useLiveStats()
 
   return (
-    <section className="container py-16 md:py-24" id="stats">
+    <section className="container px-5 py-14 md:py-24" id="stats">
       <SectionHeader
         eyebrow="Live Stats"
         title={
@@ -68,7 +68,7 @@ export function RealtimeStats() {
               key={stat.key}
               className="group border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
-              <CardContent className="pt-6">
+              <CardContent className="p-5 md:pt-6">
                 <div className="mb-4 flex items-center justify-between">
                   <div
                     className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.bgColor}`}
@@ -80,10 +80,10 @@ export function RealtimeStats() {
                   {isLoading ? (
                     <Skeleton className="h-9 w-20" />
                   ) : (
-                    <p className="font-mono text-3xl font-bold tabular-nums text-foreground">
+                    <p className="font-mono text-3xl font-bold tabular-nums text-foreground md:text-4xl">
                       <CountUp
                         from={0}
-                        to={typeof value === 'number' ? value : parseInt(value, 10) || 0}
+                        to={typeof value === 'number' ? value : parseInt(String(value), 10) || 0}
                         duration={2.2}
                         separator=","
                         direction="up"
@@ -91,10 +91,10 @@ export function RealtimeStats() {
                       />
                     </p>
                   )}
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-foreground md:text-base">
                     {stat.label}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs leading-relaxed text-muted-foreground md:text-sm">
                     {stat.description}
                   </p>
                 </div>
