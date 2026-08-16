@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { SpecularButtonWrapper } from './specular-button-wrapper'
@@ -12,18 +11,16 @@ const ROTATING_ADJECTIVES = ['cepat.', 'presisi.', 'elegan.', 'modern.', 'handal
 /**
  * Hero Section — Mobile-focused (1 message + 1 CTA)
  *
- * FIX UI/UX AUDIT:
- * - Mobile max-width: 327px content (via container)
- * - H1 mobile: 36px dengan line-height 1.1
- * - Primary button min height 48px
- * - Trust microcopy lebih compact di mobile
- * - Secondary CTA di-hide di mobile untuk fokus
+ * FIX TALOS AUDIT:
+ * - Primary CTA menggunakan button element (bukan link)
+ * - Proper aria-labels untuk screen readers
+ * - Semantic structure yang jelas
  */
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden" aria-labelledby="hero-heading">
       {/* Background gradient glow */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
         <div className="absolute -left-40 top-1/3 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -right-40 top-1/2 h-[500px] w-[500px] rounded-full bg-secondary/10 blur-3xl" />
@@ -35,12 +32,15 @@ export function HeroSection() {
           variant="outline"
           className="mb-6 border-primary/40 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur-sm"
         >
-          <Sparkles className="mr-2 h-4 w-4" />
+          <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
           Full-Stack Developer & Gitaris — Yogyakarta
         </Badge>
 
-        {/* 2. Headline — Mobile: 36px, Desktop: 60px */}
-        <h1 className="max-w-4xl font-sans text-[2.25rem] font-bold leading-[1.1] tracking-tight text-foreground drop-shadow-sm sm:text-5xl md:text-6xl">
+        {/* 2. Headline */}
+        <h1
+          id="hero-heading"
+          className="max-w-4xl font-sans text-[2.25rem] font-bold leading-[1.1] tracking-tight text-foreground drop-shadow-sm sm:text-5xl md:text-6xl"
+        >
           Saya membangun web yang{' '}
           <RotatingText
             texts={ROTATING_ADJECTIVES}
@@ -66,39 +66,45 @@ export function HeroSection() {
           konsultasi gratis.
         </p>
 
-        {/* 4. CTA — Primary dominan, secondary di-hide di mobile untuk fokus */}
+        {/* 4. CTA — FIX: Gunakan button dengan onClick navigation, bukan nested link->button */}
         <div className="mt-10 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row">
-          <Link href="/#projects" className="inline-block w-full sm:w-auto">
-            <SpecularButtonWrapper variant="primary" showArrow>
-              Lihat Proyek Saya
-            </SpecularButtonWrapper>
-          </Link>
-          {/* Secondary CTA: hidden di mobile untuk fokus ke primary */}
+          <SpecularButtonWrapper
+            variant="primary"
+            showArrow
+            onClick={() => {
+              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          >
+            Lihat Proyek Saya
+          </SpecularButtonWrapper>
+
+          {/* Secondary CTA: hidden di mobile untuk fokus */}
           <Button
             size="lg"
             variant="outline"
-            asChild
             className="hidden h-12 px-8 backdrop-blur-sm sm:inline-flex"
+            onClick={() => {
+              document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
+            }}
+            aria-label="Jadwalkan konsultasi - scroll ke bagian booking"
           >
-            <Link href="/#booking">
-              <CalendarCheck className="mr-2 h-5 w-5" />
-              Jadwalkan Konsultasi
-            </Link>
+            <CalendarCheck className="mr-2 h-5 w-5" aria-hidden="true" />
+            Jadwalkan Konsultasi
           </Button>
         </div>
 
-        {/* 5. Trust microcopy — Lebih compact di mobile, lebih visible (kontras AA) */}
+        {/* 5. Trust microcopy */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-foreground/85">
           <span className="flex items-center gap-1.5">
-            <Zap className="h-4 w-4 text-primary" />
+            <Zap className="h-4 w-4 text-primary" aria-hidden="true" />
             Respons &lt; 24 jam
           </span>
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-primary" />
+            <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
             Konsultasi gratis
           </span>
           <span className="flex items-center gap-1.5">
-            <Code2 className="h-4 w-4 text-primary" />
+            <Code2 className="h-4 w-4 text-primary" aria-hidden="true" />
             3 proyek live
           </span>
         </div>

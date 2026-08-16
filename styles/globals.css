@@ -1,14 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* ============================================================================
-   CUSTOM VARIANTS
-   ============================================================================ */
 @custom-variant dark (&:is(.dark *));
 
-/* ============================================================================
-   THEME DEFINITION
-   ============================================================================ */
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -31,30 +25,24 @@
   --color-ring: hsl(var(--ring));
   --color-surface: hsl(var(--surface));
   --color-surface-light: hsl(var(--surface-light));
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
+  /* FIX TYPOGRAPHY: Enforce Plus Jakarta Sans untuk body, JetBrains Mono HANYA untuk code */
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 /* ============================================================================
-   CSS VARIABLES
-   FIX UTAMA: Typography + Color Contrast (audit 39/100, Severe Risk)
+   CSS VARIABLES — FIX CONTRAST (TALOS MEDIUM ISSUE)
    
-   Perubahan kritis:
-   - muted-foreground dinaikkan dari 65% → 77% (dark) dan 34% → 42% (light)
-     untuk lolos WCAG AA (rasio kontras ≥ 4.5:1)
-   - Base font size diperbesar untuk readability
-   - Line-height diperbaiki untuk readability
+   Perubahan:
+   - muted-foreground dinaikkan untuk lolos WCAG AA (4.5:1)
+   - Light mode: 42% → 45% (kontras lebih kuat)
+   - Dark mode: 77% → 80% (lebih terbaca)
    ============================================================================ */
 :root {
   --radius: 0.75rem;
@@ -71,28 +59,21 @@
   --secondary: 38 92% 40%;
   --secondary-foreground: 0 0% 98%;
   --muted: 240 4.8% 94%;
-  /* FIX: 34% → 42% (kontras AA di atas white) */
-  --muted-foreground: 240 5% 42%;
+  /* FIX: 42% → 45% untuk WCAG AA compliance (4.5:1 contrast) */
+  --muted-foreground: 240 5% 45%;
   --accent: 24 95% 46%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  /* FIX: border lebih visible */
   --border: 240 6% 82%;
   --input: 240 6% 78%;
   --ring: 199 89% 40%;
   --surface: 0 0% 100%;
   --surface-light: 240 4.8% 95.9%;
-  --chart-1: 199 89% 40%;
-  --chart-2: 38 92% 50%;
-  --chart-3: 24 95% 50%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
 }
 
 .dark {
   /* DARK MODE */
-  /* FIX: background sedikit lebih terang untuk kurangi eye strain */
   --background: 222 47% 7%;
   --foreground: 210 40% 98%;
   --card: 222 44% 9%;
@@ -104,32 +85,25 @@
   --secondary: 38 92% 55%;
   --secondary-foreground: 222 47% 7%;
   --muted: 217 33% 15%;
-  /* FIX: 65% → 77% (kontras AA di atas dark bg, rasio ~7:1) */
-  --muted-foreground: 215 16% 77%;
+  /* FIX: 77% → 80% untuk WCAG AA compliance */
+  --muted-foreground: 215 16% 80%;
   --accent: 24 95% 60%;
   --accent-foreground: 222 47% 7%;
   --destructive: 0 62.8% 40%;
   --destructive-foreground: 210 40% 98%;
-  /* FIX: border lebih visible di dark mode */
   --border: 217 25% 22%;
   --input: 217 25% 28%;
   --ring: 199 89% 55%;
   --surface: 222 44% 9%;
   --surface-light: 217 33% 15%;
-  --chart-1: 199 89% 55%;
-  --chart-2: 38 92% 55%;
-  --chart-3: 24 95% 60%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
 }
 
 /* ============================================================================
-   BASE LAYER — TYPOGRAPHY FIX
+   BASE LAYER — TYPOGRAPHY ENFORCEMENT (TALOS MEDIUM ISSUE)
    
-   FIX UTAMA:
-   - Body font size: 17px (was 16px) untuk readability
-   - Line-height: 1.65 untuk better readability
-   - Paragraph spacing: lebih lega
+   FIX: Pastikan font system konsisten
+   - Body/Headings: Plus Jakarta Sans (font-sans)
+   - Code/Mono: JetBrains Mono (font-mono) HANYA untuk code snippets
    ============================================================================ */
 @layer base {
   * {
@@ -138,49 +112,56 @@
 
   html {
     scroll-behavior: smooth;
-    /* Mobile: prevent iOS auto-zoom saat focus input */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 
+  /* Body: Plus Jakarta Sans untuk semua text kecuali code */
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* FIX: 16px → 17px untuk readability, mencegah iOS zoom saat input focus */
     font-size: 17px;
     line-height: 1.65;
     font-feature-settings: "rlig" 1, "calt" 1;
     letter-spacing: -0.003em;
   }
 
-  /* Paragraphs: lebih lega untuk kurangi cognitive load */
+  /* Paragraphs */
   p {
     line-height: 1.7;
     letter-spacing: -0.003em;
   }
 
-  /* Headings: tighter tracking untuk visual impact */
+  /* Headings */
   h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
     letter-spacing: -0.02em;
     line-height: 1.15;
   }
 
-  /* FIX: pastikan small text tetap readable (WCAG AA) */
+  /* FIX: Mono font HANYA untuk code elements */
+  code, pre, kbd, samp {
+    font-family: var(--font-mono);
+  }
+
+  /* Small text masih readable */
   small, .text-xs {
     font-size: 0.8125rem;
     line-height: 1.5;
   }
 
-  /* FIX: button text harus readable di semua size */
+  /* Buttons & links */
   button, a {
     letter-spacing: -0.005em;
   }
 
-  /* FIX: input fields harus cukup besar untuk mobile tap (48px min) */
+  /* Input fields */
   input, textarea, select {
     font-size: 16px;
+    font-family: var(--font-sans);
   }
 }
 
@@ -188,12 +169,10 @@
    UTILITIES
    ============================================================================ */
 
-/* Safe area untuk iPhone notch */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 12px);
 }
 
-/* Shimmer loading effect */
 @keyframes shimmer {
   0% { background-position: -1000px 0; }
   100% { background-position: 1000px 0; }
@@ -212,7 +191,6 @@
 
 /* ============================================================================
    MOBILE TYPOGRAPHY SCALING
-   FIX: Mobile-specific typography untuk hindari "crowded first screen"
    ============================================================================ */
 @media (max-width: 640px) {
   html {
@@ -224,26 +202,22 @@
     line-height: 1.6;
   }
 
-  /* H1 mobile: 36px (audit recommendation) */
   h1 {
-    font-size: 2.25rem; /* 36px */
+    font-size: 2.25rem;
     line-height: 1.1;
     letter-spacing: -0.025em;
   }
 
-  /* H2 mobile: 28px */
   h2 {
     font-size: 1.75rem;
     line-height: 1.15;
   }
 
-  /* H3 mobile: 20px */
   h3 {
     font-size: 1.25rem;
     line-height: 1.2;
   }
 
-  /* Buttons min height 48px (WCAG touch target) */
   button, a[role="button"] {
     min-height: 48px;
   }
@@ -290,9 +264,6 @@
   }
 }
 
-/* ============================================================================
-   MAIN CONTENT Z-INDEX
-   ============================================================================ */
 main,
 header,
 footer {
@@ -300,17 +271,12 @@ footer {
   z-index: 10;
 }
 
-/* ============================================================================
-   MOBILE SECTION SPACING
-   FIX: Audit rekomendasi 56px between major sections
-   ============================================================================ */
 @media (max-width: 640px) {
   section {
     padding-top: 56px;
     padding-bottom: 56px;
   }
   
-  /* Kurangi padding di py-16 agar tidak double-stack */
   .py-16 {
     padding-top: 56px !important;
     padding-bottom: 56px !important;

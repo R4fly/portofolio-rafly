@@ -27,31 +27,12 @@ import {
 } from '@/components/ui/form'
 import { Loader2, CalendarCheck } from 'lucide-react'
 
-/**
- * Local booking form schema — menggunakan string untuk scheduled_at
- * karena <input type="datetime-local"> expects string format.
- */
 const bookingFormSchema = z.object({
-  client_name: z
-    .string()
-    .min(2, { message: 'Nama minimal 2 karakter' })
-    .max(100, { message: 'Nama maksimal 100 karakter' })
-    .trim(),
-  client_email: z
-    .string()
-    .email({ message: 'Email tidak valid' })
-    .max(255, { message: 'Email maksimal 255 karakter' })
-    .trim(),
-  booking_type: z.enum(['web_consultation', 'guitar_session'], {
-    message: 'Pilih tipe sesi',  // Zod v4 syntax
-  }),
-  scheduled_at: z
-    .string()
-    .min(1, { message: 'Tanggal dan waktu wajib diisi' }),
-  notes: z
-    .string()
-    .max(1000, { message: 'Catatan maksimal 1000 karakter' })
-    .optional(),
+  client_name: z.string().min(2, { message: 'Nama minimal 2 karakter' }).max(100).trim(),
+  client_email: z.string().email({ message: 'Email tidak valid' }).max(255).trim(),
+  booking_type: z.enum(['web_consultation', 'guitar_session'], { message: 'Pilih tipe sesi' }),
+  scheduled_at: z.string().min(1, { message: 'Tanggal dan waktu wajib diisi' }),
+  notes: z.string().max(1000).optional(),
 })
 
 type BookingFormData = z.infer<typeof bookingFormSchema>
@@ -72,7 +53,6 @@ export function BookingForm() {
   })
 
   function onSubmit(data: BookingFormData): void {
-    // Convert datetime-local string ke ISO string untuk database
     const scheduledAtISO = new Date(data.scheduled_at).toISOString()
 
     addBookingMutation.mutate(
@@ -85,9 +65,7 @@ export function BookingForm() {
       },
       {
         onSuccess: () => {
-          toast.success(
-            'Booking berhasil dijadwalkan! Anda akan menerima konfirmasi via email.'
-          )
+          toast.success('Booking berhasil dijadwalkan! Anda akan menerima konfirmasi via email.')
           form.reset()
           router.push('/thank-you')
         },
@@ -98,30 +76,39 @@ export function BookingForm() {
     )
   }
 
-  // Min date = sekarang (hindari booking di masa lalu)
   const now = new Date()
   const minDate = now.toISOString().slice(0, 16)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {/* Name + Email - stack di mobile, side-by-side di desktop */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+        {/* Name + Email */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="client_name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Nama Lengkap *</FormLabel>
+                <FormLabel htmlFor="booking-name">
+                  Nama Lengkap <span className="text-destructive" aria-hidden="true">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input
+                    id="booking-name"
+                    type="text"
                     placeholder="John Doe"
                     autoComplete="name"
+                    required
+                    aria-required="true"
+                    aria-invalid={fieldState.error ? 'true' : 'false'}
+                    aria-describedby={fieldState.error ? 'booking-name-error' : undefined}
                     disabled={addBookingMutation.isPending}
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                {fieldState.error && (
+                  <FormMessage id="booking-name-error" role="alert" />
+                )}
               </FormItem>
             )}
           />
@@ -129,19 +116,28 @@ export function BookingForm() {
           <FormField
             control={form.control}
             name="client_email"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Email *</FormLabel>
+                <FormLabel htmlFor="booking-email">
+                  Email <span className="text-destructive" aria-hidden="true">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input
+                    id="booking-email"
                     type="email"
                     placeholder="john@example.com"
                     autoComplete="email"
+                    required
+                    aria-required="true"
+                    aria-invalid={fieldState.error ? 'true' : 'false'}
+                    aria-describedby={fieldState.error ? 'booking-email-error' : undefined}
                     disabled={addBookingMutation.isPending}
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                {fieldState.error && (
+                  <FormMessage id="booking-email-error" role="alert" />
+                )}
               </FormItem>
             )}
           />
@@ -151,62 +147,80 @@ export function BookingForm() {
         <FormField
           control={form.control}
           name="booking_type"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Tipe Sesi *</FormLabel>
+              <FormLabel htmlFor="booking-type">
+                Tipe Sesi <span className="text-destructive" aria-hidden="true">*</span>
+              </FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
                 disabled={addBookingMutation.isPending}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger
+                    id="booking-type"
+                    aria-required="true"
+                    aria-invalid={fieldState.error ? 'true' : 'false'}
+                    aria-describedby={fieldState.error ? 'booking-type-error' : 'booking-type-desc'}
+                  >
                     <SelectValue placeholder="Pilih tipe sesi" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="web_consultation">
                     <div className="flex items-center gap-2">
-                      <CalendarCheck className="h-4 w-4" />
+                      <CalendarCheck className="h-4 w-4" aria-hidden="true" />
                       Konsultasi Web (1 jam)
                     </div>
                   </SelectItem>
                   <SelectItem value="guitar_session">
                     <div className="flex items-center gap-2">
-                      <CalendarCheck className="h-4 w-4" />
+                      <CalendarCheck className="h-4 w-4" aria-hidden="true" />
                       Sesi Gitar (1 jam)
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
-              <FormDescription>
+              <FormDescription id="booking-type-desc">
                 Konsultasi gratis untuk sesi pertama
               </FormDescription>
-              <FormMessage />
+              {fieldState.error && (
+                <FormMessage id="booking-type-error" role="alert" />
+              )}
             </FormItem>
           )}
         />
 
-        {/* Scheduled At - datetime-local expects string value */}
+        {/* Scheduled At */}
         <FormField
           control={form.control}
           name="scheduled_at"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Tanggal & Waktu *</FormLabel>
+              <FormLabel htmlFor="booking-datetime">
+                Tanggal & Waktu <span className="text-destructive" aria-hidden="true">*</span>
+              </FormLabel>
               <FormControl>
                 <Input
+                  id="booking-datetime"
                   type="datetime-local"
                   min={minDate}
+                  required
+                  aria-required="true"
+                  aria-invalid={fieldState.error ? 'true' : 'false'}
+                  aria-describedby={fieldState.error ? 'booking-datetime-error' : 'booking-datetime-desc'}
                   disabled={addBookingMutation.isPending}
                   className="font-mono text-sm"
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
+              <FormDescription id="booking-datetime-desc">
                 Pilih waktu yang sesuai (WIB). Saya akan konfirmasi ulang.
               </FormDescription>
-              <FormMessage />
+              {fieldState.error && (
+                <FormMessage id="booking-datetime-error" role="alert" />
+              )}
             </FormItem>
           )}
         />
@@ -215,19 +229,24 @@ export function BookingForm() {
         <FormField
           control={form.control}
           name="notes"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Catatan Tambahan</FormLabel>
+              <FormLabel htmlFor="booking-notes">Catatan Tambahan</FormLabel>
               <FormControl>
                 <Textarea
+                  id="booking-notes"
                   placeholder="Topik yang ingin dibahas, atau hal lain yang perlu saya ketahui..."
                   rows={4}
+                  aria-invalid={fieldState.error ? 'true' : 'false'}
+                  aria-describedby={fieldState.error ? 'booking-notes-error' : undefined}
                   disabled={addBookingMutation.isPending}
                   className="resize-none"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              {fieldState.error && (
+                <FormMessage id="booking-notes-error" role="alert" />
+              )}
             </FormItem>
           )}
         />
@@ -238,15 +257,16 @@ export function BookingForm() {
           size="lg"
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           disabled={addBookingMutation.isPending}
+          aria-label={addBookingMutation.isPending ? 'Menjadwalkan sesi...' : 'Jadwalkan sesi'}
         >
           {addBookingMutation.isPending ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Menjadwalkan...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+              <span aria-live="polite">Menjadwalkan...</span>
             </>
           ) : (
             <>
-              <CalendarCheck className="mr-2 h-4 w-4" />
+              <CalendarCheck className="mr-2 h-4 w-4" aria-hidden="true" />
               Jadwalkan Sesi
             </>
           )}
