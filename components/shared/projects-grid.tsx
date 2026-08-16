@@ -41,6 +41,10 @@ export function ProjectsGrid() {
                     <Skeleton className="h-6 w-16" />
                     <Skeleton className="h-6 w-16" />
                   </div>
+                  <div className="flex gap-2 border-t border-border/40 pt-4">
+                    <Skeleton className="h-9 flex-1" />
+                    <Skeleton className="h-9 flex-1" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -79,10 +83,10 @@ export function ProjectsGrid() {
             const ProjectCard = (
               <Card
                 key={project.id}
-                className="group h-full overflow-hidden border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+                className="group flex h-full flex-col overflow-hidden border-border/40 bg-card/50 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
               >
-                {/* Thumbnail */}
-                <div className="relative aspect-video overflow-hidden bg-muted">
+                {/* Thumbnail - fixed aspect ratio */}
+                <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-muted">
                   {project.thumbnail_url ? (
                     <Image
                       src={project.thumbnail_url}
@@ -90,6 +94,7 @@ export function ProjectsGrid() {
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
@@ -104,17 +109,19 @@ export function ProjectsGrid() {
                   )}
                 </div>
 
-                <CardContent className="p-5">
+                {/* Content - flex-grow to fill space */}
+                <CardContent className="flex flex-1 flex-col p-5">
                   <div className="mb-3">
-                    <h3 className="mb-1 font-sans text-lg font-bold tracking-tight text-foreground">
+                    <h3 className="mb-1 line-clamp-1 font-sans text-lg font-bold tracking-tight text-foreground">
                       {project.title}
                     </h3>
-                    <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-muted-foreground">
                       {project.description || 'Tidak ada deskripsi.'}
                     </p>
                   </div>
 
-                  <div className="mb-4 flex flex-wrap gap-1.5">
+                  {/* Tech Stack - fixed height */}
+                  <div className="mb-4 flex min-h-[2rem] flex-wrap gap-1.5">
                     {project.tech_stack.slice(0, 4).map((tech) => (
                       <Badge
                         key={tech}
@@ -131,7 +138,8 @@ export function ProjectsGrid() {
                     )}
                   </div>
 
-                  <div className="flex gap-2 border-t border-border/40 pt-4">
+                  {/* Action Links - pushed to bottom */}
+                  <div className="mt-auto flex gap-2 border-t border-border/40 pt-4">
                     {project.live_url && (
                       <Button
                         variant="default"

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
 /**
  * Sticky Mobile CTA — Fixed bottom CTA button yang hanya tampil di mobile.
@@ -13,15 +14,40 @@ import { cn } from '@/lib/utils'
  * - Halaman login (user sedang fokus ke form)
  * - Halaman dashboard (sudah dalam portal client)
  * - Desktop (width >= 768px)
+ * - Saat Cookie Banner visible (hindari overlap)
+ *
+ * Strategi anti-overlap dengan Cookie Banner:
+ * - Poll localStorage setiap 500ms untuk cek cookie-consent
+ * - Jika belum ada consent, sembunyikan Mobile CTA
+ * - Jika sudah ada consent, tampilkan Mobile CTA
  *
  * Accessibility: respects safe-area-inset untuk iPhone notch
  */
 export function StickyMobileCta() {
   const pathname = usePathname()
+  const [hasConsent, setHasConsent] = useState(false)
+
+  // Poll localStorage untuk cek cookie consent
+  useEffect(() => {
+    function checkConsent(): void {
+      const consent = localStorage.getItem('cookie-consent')
+      setHasConsent(!!consent)
+    }
+
+    checkConsent() // Initial check
+
+    const interval = window.setInterval(checkConsent, 500)
+    return (): void => {
+      window.clearInterval(interval)
+    }
+  }, [])
 
   // Hide di halaman yang tidak perlu CTA floating
   const hiddenPaths = ['/login', '/dashboard']
-  const isHidden = hiddenPaths.some((path) => pathname.startsWith(path))
+  const isPageHidden = hiddenPaths.some((path) => pathname.startsWith(path))
+
+  // Hide jika belum ada cookie consent (banner masih visible)
+  const isHidden = isPageHidden || !hasConsent
 
   if (isHidden) return null
 
@@ -29,7 +55,7 @@ export function StickyMobileCta() {
     <div
       className={cn(
         'fixed bottom-0 left-0 right-0 z-40 border-t border-border/40 bg-background/95 p-3 backdrop-blur-xl',
-        'md:hidden', // Hidden di desktop
+        'md:hidden',
         'safe-bottom'
       )}
     >

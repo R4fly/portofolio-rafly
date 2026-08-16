@@ -13,16 +13,21 @@ import { StickyMobileCta } from '@/components/shared/sticky-mobile-cta'
 import { GlobalScanner } from '@/components/shared/global-scanner'
 import { StructuredData } from '@/components/shared/structured-data'
 
+// Font optimization: display: swap untuk avoid FOIT (Flash of Invisible Text)
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 })
 
 const fontMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
   display: 'swap',
+  preload: true,
+  fallback: ['ui-monospace', 'monospace'],
 })
 
 export const metadata: Metadata = {
@@ -91,6 +96,7 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
+        {/* Inline script untuk set theme sebelum hydration (avoid flash) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -111,7 +117,7 @@ export default function RootLayout({
       >
         <StructuredData />
 
-        {/* Global Ambient Scanner — tampil di SEMUA halaman */}
+        {/* Global Ambient Scanner */}
         <GlobalScanner />
 
         <ThemeProvider
