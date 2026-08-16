@@ -9,6 +9,7 @@ import { MobileCTA } from "@/components/shared/mobile-cta"
 import { CommandMenu } from "@/components/shared/command-menu"
 import { CommandShortcut } from "@/components/shared/command-shortcut"
 import "./globals.css"
+import { StructuredData } from "@/components/shared/structured-data"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -83,6 +84,7 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background font-body antialiased">
+        <StructuredData />
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Header />
