@@ -1,35 +1,57 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  
-  // Server Actions configuration (masih di dalam experimental untuk Next.js 16)
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
-  
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Image optimization — domain whitelist
   images: {
-    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/storage/v1/object/public/**',
+        hostname: '**.supabase.co',
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
+        hostname: 'raflybaehaqi.my.id',
       },
     ],
-    deviceSizes: [640, 768, 1024, 1280, 1536],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    // Format modern untuk production
+    formats: ['image/avif', 'image/webp'],
   },
-  
-  typescript: {
-    ignoreBuildErrors: false, // Strict mode, jangan abaikan error TypeScript
-  },
-};
 
-export default nextConfig;
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+    ]
+  },
+
+  // Enable React strict mode
+  reactStrictMode: true,
+
+  // Production optimizations
+  poweredByHeader: false,
+}
+
+module.exports = nextConfig
